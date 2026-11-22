@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 1,
+  "type": "plugin",
+  "id": "justflows.brayne-testimonials",
+  "apiNamespace": "brayne-testimonials",
+  "name": "Brayne Testimonials",
+  "version": "0.1.0",
+  "publisher": "Brayne",
+  "license": "GPL-2.0-or-later",
+  "engines": {
+    "justflows": ">=0.4.0 <0.5.0"
+  },
+  "description": "Collect customer reviews through a moderated form and display them as testimonial blocks: grid, slider, or feature quote, with optional star ratings, avatars, and an honest activity strip.",
+  "author": "Brayne Smart solutions Corp",
+  "homepage": "https://braynesmartsolutions.com",
+  "registry": {
+    "commercialMarketplace": false,
+    "listed": false,
+    "free": true,
+    "comingSoon": true
+  },
+  "permissions": ["admin:extend", "mail:send"],
+  "main": "index.js",
+  "adminSection": {
+    "label": "Testimonials",
+    "icon": "★"
+  },
+  "adminMenu": [
+    {
+      "id": "testimonials",
+      "label": "Testimonials",
+      "path": "",
+      "icon": "★",
+      "domain": "plugin",
+      "listed": true
+    }
+  ],
+  "adminApp": {
+    "dir": "admin",
+    "routes": [
+      {
+        "path": "",
+        "entry": "index.html",
+        "title": "Testimonials"
+      }
+    ],
+    "locales": {
+      "en": "locales/en.json"
+    }
+  },
+  "settingsSchema": {
+    "notifyEmail": {
+      "type": "string",
+      "label": "Notification email",
+      "description": "Where new submissions are announced. Empty sends no email.",
+      "default": ""
+    },
+    "requireCaptcha": {
+      "type": "boolean",
+      "label": "Require CAPTCHA",
+      "description": "Uses the site's own configured CAPTCHA provider (Turnstile, hCaptcha, or reCAPTCHA). With no provider configured, submissions rely on moderation.",
+      "default": true
+    },
+    "showStars": {
+      "type": "boolean",
+      "label": "Show star ratings",
+      "description": "Unrated reviews render without stars.",
+      "default": true
+    },
+    "showAvatars": {
+      "type": "boolean",
+      "label": "Show avatars",
+      "description": "The reviewer's uploaded image, or a colour chip with their initials.",
+      "default": true
+    },
+    "showDate": {
+      "type": "boolean",
+      "label": "Show review date",
+      "description": "Displays when the review was approved.",
+      "default": false
+    },
+    "defaultLayout": {
+      "type": "select",
+      "label": "Default layout",
+      "description": "The layout a new Testimonials block starts with.",
+      "default": "grid",
+      "options": [
+        { "value": "grid", "label": "Grid" },
+        { "value": "slider", "label": "Slider" },
+        { "value": "feature", "label": "Feature quote" }
+      ]
+    },
+    "columns": {
+      "type": "select",
+      "label": "Grid columns",
+      "description": "Columns used by the grid layout.",
+      "default": "3",
+      "options": [
+        { "value": "2", "label": "Two" },
+        { "value": "3", "label": "Three" },
+        { "value": "4", "label": "Four" }
+      ]
+    },
+    "minRatingToDisplay": {
+      "type": "select",
+      "label": "Minimum star rating",
+      "description": "0 shows everything. When a minimum is set, unrated reviews are hidden from the site but stay visible in the inbox.",
+      "default": "0",
+      "options": [
+        { "value": "0", "label": "No minimum" },
+        { "value": "1", "label": "1 star and above" },
+        { "value": "2", "label": "2 stars and above" },
+        { "value": "3", "label": "3 stars and above" },
+        { "value": "4", "label": "4 stars and above" },
+        { "value": "5", "label": "5 stars only" }
+      ]
+    },
+    "collectionUrl": {
+      "type": "string",
+      "label": "Reviews page address",
+      "description": "The page that holds the Review form block, so the admin can copy a shareable link.",
+      "default": ""
+    }
+  },
+  "assets": {
+    "dir": "public",
+    "blocks": {
+      "justflows.brayne-testimonials.reviews": {
+        "scripts": ["testimonials.js"],
+        "styles": ["testimonials.css"]
+      },
+      "justflows.brayne-testimonials.form": {
+        "scripts": ["review-form.js"],
+        "styles": ["review-form.css"]
+      },
+      "justflows.brayne-testimonials.strip": {
+        "styles": ["testimonials.css"]
+      }
+    }
+  }
+}

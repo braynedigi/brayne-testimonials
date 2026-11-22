@@ -1,0 +1,332 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later
+ *
+ * Brayne Testimonials - display styles for the Testimonials, Review activity,
+ * and (via review-form.css) the collection form blocks. The block sits inside
+ * the site's theme, so surfaces adapt through color-scheme rather than
+ * forcing a palette; the plugin's own accents are the rating gold and the
+ * status colours from the design contract.
+ */
+
+:root {
+  --jbt-gold: #f0a830;
+  --jbt-gold-soft: rgba(240, 168, 48, 0.16);
+  --jbt-success: #34d399;
+  --jbt-pending: #fbbf24;
+  --jbt-danger: #f87171;
+  --jbt-card-bg: rgba(15, 23, 42, 0.03);
+  --jbt-card-border: rgba(15, 23, 42, 0.1);
+  --jbt-text-muted: rgba(15, 23, 42, 0.62);
+  --jbt-radius: 14px;
+  --jbt-radius-sm: 10px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --jbt-gold: #f0a830;
+    --jbt-card-bg: rgba(255, 255, 255, 0.045);
+    --jbt-card-border: rgba(255, 255, 255, 0.12);
+    --jbt-text-muted: rgba(232, 236, 245, 0.62);
+  }
+}
+
+/* ------------------------------------------------------------------ shared */
+
+.jbt-card__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.jbt-card__photo {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex: none;
+}
+
+.jbt-card__initials {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  flex: none;
+}
+
+.jbt-card__who {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.jbt-card__name {
+  font-weight: 700;
+  font-size: 14.5px;
+  line-height: 1.25;
+}
+
+.jbt-card__role {
+  font-size: 12.5px;
+  color: var(--jbt-text-muted);
+  line-height: 1.3;
+}
+
+.jbt-card__date {
+  font-size: 12px;
+  color: var(--jbt-text-muted);
+}
+
+.jbt-stars {
+  display: inline-flex;
+  gap: 1px;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.jbt-star--on {
+  color: var(--jbt-gold);
+}
+
+.jbt-star--off {
+  color: var(--jbt-card-border);
+}
+
+.jbt-card__quote {
+  margin: 0;
+  margin-top: 12px;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.jbt-empty {
+  margin: 0;
+  padding: 28px 20px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--jbt-text-muted);
+  border: 1px dashed var(--jbt-card-border);
+  border-radius: var(--jbt-radius);
+}
+
+/* ------------------------------------------------------------------- grid */
+
+.jbt {
+  margin: 0;
+}
+
+.jbt--grid {
+  display: grid;
+  gap: 16px;
+}
+
+.jbt--grid.jbt--cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.jbt--grid.jbt--cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.jbt--grid.jbt--cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+@media (max-width: 900px) {
+  .jbt--grid.jbt--cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .jbt--grid.jbt--cols-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .jbt--grid.jbt--cols-2,
+  .jbt--grid.jbt--cols-3,
+  .jbt--grid.jbt--cols-4 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ----------------------------------------------------------------- slider */
+
+.jbt--slider {
+  position: relative;
+}
+
+.jbt-track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: min(84%, 340px);
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 8px;
+  scrollbar-width: thin;
+}
+
+.jbt--slider .jbt-card {
+  scroll-snap-align: start;
+}
+
+/**
+ * Arrows and dots only exist once the block script adds them, so a page
+ * without scripting keeps a plain, scrollable strip.
+ */
+.jbt-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--jbt-card-border);
+  background: var(--jbt-card-bg);
+  color: inherit;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.jbt-arrow:hover {
+  border-color: var(--jbt-gold);
+}
+
+.jbt-arrow:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--jbt-gold-soft);
+}
+
+.jbt-arrow--prev {
+  left: -12px;
+}
+
+.jbt-arrow--next {
+  right: -12px;
+}
+
+.jbt-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.jbt-dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border-radius: 50%;
+  border: none;
+  background: var(--jbt-card-border);
+  cursor: pointer;
+}
+
+.jbt-dot[aria-selected="true"] {
+  background: var(--jbt-gold);
+}
+
+/* ---------------------------------------------------------------- feature */
+
+.jbt--feature {
+  text-align: center;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.jbt-feature__quote {
+  margin: 0;
+  font-size: clamp(20px, 2.4vw, 28px);
+  line-height: 1.45;
+  font-weight: 500;
+}
+
+.jbt-feature__who {
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ------------------------------------------------------------ style sets */
+
+.jbt--cards .jbt-card {
+  background: var(--jbt-card-bg);
+  border: 1px solid var(--jbt-card-border);
+  border-radius: var(--jbt-radius);
+  padding: 18px;
+  margin: 0;
+}
+
+.jbt--minimal .jbt-card {
+  margin: 0;
+  padding: 4px 0;
+  border-top: 1px solid var(--jbt-card-border);
+}
+
+.jbt--minimal .jbt-card:first-child {
+  border-top: none;
+}
+
+.jbt--quote .jbt-card {
+  margin: 0;
+  padding: 20px 22px 18px;
+  border-left: 3px solid var(--jbt-gold);
+  background: var(--jbt-gold-soft);
+  border-radius: 0 var(--jbt-radius-sm) var(--jbt-radius-sm) 0;
+}
+
+.jbt--quote .jbt-card__quote {
+  font-style: italic;
+}
+
+.jbt--quote .jbt-card__quote::before {
+  content: "\201c";
+}
+
+.jbt--quote .jbt-card__quote::after {
+  content: "\201d";
+}
+
+.jbt--feature.jbt--quote .jbt-feature__quote::before {
+  content: "\201c";
+  color: var(--jbt-gold);
+  font-size: 1.6em;
+  line-height: 0;
+  vertical-align: -0.12em;
+  margin-right: 4px;
+}
+
+/* ------------------------------------------------------------------ strip */
+
+.jbt-strip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--jbt-gold-soft);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.jbt-strip__sep {
+  color: var(--jbt-text-muted);
+}
+
+.jbt-strip__avg {
+  color: var(--jbt-gold);
+}
