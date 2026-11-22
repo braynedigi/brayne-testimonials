@@ -3,7 +3,7 @@
  *
  * Every block the plugin registers renders through this module, so the
  * escaping rules live in one place: testimonial text is visitor input, names
- * and roles are operator input, and image addresses are stored URLs â€” all of
+ * and roles are operator input, and image addresses are stored URLs — all of
  * it is written with `textContent`-style escaping before it touches markup.
  * The host sanitizes block output as well; this layer keeps every value safe
  * on its own, before that pass.
@@ -24,16 +24,14 @@ const MONTHS = [
   "Dec",
 ] as const;
 
-/** A calm palette the initials chip can pick from, deterministic by name. */
-const INITIAL_COLORS = [
-  "#0f766e",
-  "#7c3aed",
-  "#b45309",
-  "#1d4ed8",
-  "#9d174d",
-  "#4d7c0f",
-  "#0e7490",
-  "#8d4d2a",
+/** The six avatar chip colours from the design contract (`avatar-1`..`avatar-6`). */
+const AVATAR_COLORS = [
+  "#4f56d8",
+  "#166432",
+  "#b42318",
+  "#8a4b00",
+  "#0e6a80",
+  "#7a3ec8",
 ] as const;
 
 /** One testimonial as the renderer sees it. Fields are already validated. */
@@ -102,8 +100,8 @@ export function colorFromName(name: string): string {
   for (let index = 0; index < name.length; index += 1) {
     hash = (hash * 31 + name.charCodeAt(index)) % 100000;
   }
-  const picked = INITIAL_COLORS[hash % INITIAL_COLORS.length];
-  return typeof picked === "string" ? picked : "#0f766e";
+  const picked = AVATAR_COLORS[hash % AVATAR_COLORS.length];
+  return typeof picked === "string" ? picked : AVATAR_COLORS[0];
 }
 
 /** "21 Nov 2026" from an ISO date, with the machine-readable form attached. */
@@ -152,31 +150,36 @@ function avatar(record: RenderRecord, options: RenderOptions): string {
   );
 }
 
-/** Name, role, stars, and date â€” the who-strip under or beside a quote. */
+/** Name, role, and date — the who-strip under a quote. */
 function whoBlock(record: RenderRecord, options: RenderOptions): string {
   const parts: string[] = [];
   parts.push('<figcaption class="jbt-card__who">');
-  parts.push('<span class="jbt-card__name">' + escapeHtml(record.personName) + "</span>");
+  parts.push(
+    '<span class="jbt-card__name">' + escapeHtml(record.personName) + "</span>",
+  );
   if (options.showRole && record.role) {
-    parts.push('<span class="jbt-card__role">' + escapeHtml(record.role) + "</span>");
+    parts.push(
+      '<span class="jbt-card__role">' + escapeHtml(record.role) + "</span>",
+    );
   }
-  if (options.showStars) parts.push(starRow(record.rating));
-  if (options.showDate && record.approvedAt) parts.push(formatDate(record.approvedAt));
+  if (options.showDate && record.approvedAt)
+    parts.push(formatDate(record.approvedAt));
   parts.push("</figcaption>");
   return parts.join("");
 }
 
-/** One testimonial card. */
+/** One testimonial card: the rating, the quote, then who said it. */
 function card(record: RenderRecord, options: RenderOptions): string {
   return (
     '<figure class="jbt-card">' +
+    (options.showStars ? starRow(record.rating) : "") +
+    '<blockquote class="jbt-card__quote">' +
+    escapeMultiline(record.quote) +
+    "</blockquote>" +
     '<div class="jbt-card__head">' +
     avatar(record, options) +
     whoBlock(record, options) +
     "</div>" +
-    '<blockquote class="jbt-card__quote">' +
-    escapeMultiline(record.quote) +
-    "</blockquote>" +
     "</figure>"
   );
 }
@@ -191,7 +194,10 @@ export function renderEmpty(): string {
  * minimal, or quote style. Records arrive hydrated by the plugin's
  * `content.blocks` pass, or from `preview.sampleProps` in the builder.
  */
-export function renderTestimonials(records: RenderRecord[], options: RenderOptions): string {
+export function renderTestimonials(
+  records: RenderRecord[],
+  options: RenderOptions,
+): string {
   if (records.length === 0) return renderEmpty();
 
   const classes = [
@@ -211,6 +217,7 @@ export function renderTestimonials(records: RenderRecord[], options: RenderOptio
       escapeMultiline(record.quote) +
       "</blockquote>" +
       '<div class="jbt-feature__who">' +
+      avatar(record, options) +
       '<span class="jbt-card__name">' +
       escapeHtml(record.personName) +
       "</span>" +
@@ -218,7 +225,9 @@ export function renderTestimonials(records: RenderRecord[], options: RenderOptio
         ? '<span class="jbt-card__role">' + escapeHtml(record.role) + "</span>"
         : "") +
       (options.showStars ? starRow(record.rating) : "") +
-      (options.showDate && record.approvedAt ? formatDate(record.approvedAt) : "") +
+      (options.showDate && record.approvedAt
+        ? formatDate(record.approvedAt)
+        : "") +
       "</div>" +
       "</figure>" +
       "</div>"

@@ -172,7 +172,7 @@ describe("blocks", () => {
     const sample = testimonialsBlock().preview?.sampleProps as {
       records: typeof SAMPLE_RECORDS;
     };
-    expect(sample.records.length).toBe(3);
+    expect(sample.records.length).toBe(6);
     for (const record of sample.records) {
       expect(record.quote.length).toBeGreaterThan(0);
       expect(record.personName.length).toBeGreaterThan(0);

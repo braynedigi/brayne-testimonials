@@ -19,10 +19,14 @@ import {
  * keys are ignored, and each known key accepts exactly the documented values.
  */
 
-const packageRoot = path.dirname(fileURLToPath(new URL("../../package.json", import.meta.url)));
+const packageRoot = path.dirname(
+  fileURLToPath(new URL("../../package.json", import.meta.url)),
+);
 
 function manifestSchema(): Record<string, { default?: unknown }> {
-  const manifest = JSON.parse(readFileSync(path.join(packageRoot, "justflows.json"), "utf8")) as {
+  const manifest = JSON.parse(
+    readFileSync(path.join(packageRoot, "justflows.json"), "utf8"),
+  ) as {
     settingsSchema: Record<string, { default?: unknown }>;
   };
   return manifest.settingsSchema;
@@ -43,41 +47,27 @@ describe("buildSettings", () => {
     const built = buildSettings({});
     expect(built.notifyEmail).toBe("");
     expect(built.requireCaptcha).toBe(true);
-    expect(built.showStars).toBe(true);
-    expect(built.showAvatars).toBe(true);
-    expect(built.showDate).toBe(false);
-    expect(built.defaultLayout).toBe("grid");
-    expect(built.columns).toBe("3");
     expect(built.minRatingToDisplay).toBe(0);
+    expect(built.collectionUrl).toBe("");
   });
 
   it("resolves stored values into the documented shapes", () => {
     const built = buildSettings({
       notifyEmail: " support@example.com ",
       requireCaptcha: false,
-      showDate: true,
-      defaultLayout: "slider",
-      columns: "4",
       minRatingToDisplay: "4",
     });
     expect(built.notifyEmail).toBe("support@example.com");
     expect(built.requireCaptcha).toBe(false);
-    expect(built.showDate).toBe(true);
-    expect(built.defaultLayout).toBe("slider");
-    expect(built.columns).toBe("4");
     expect(built.minRatingToDisplay).toBe(4);
   });
 
   it("falls back on unknown or absent values instead of inventing state", () => {
     const built = buildSettings({
       notifyEmail: 42,
-      defaultLayout: "carousel",
-      columns: "7",
       minRatingToDisplay: "9",
     });
     expect(built.notifyEmail).toBe("");
-    expect(built.defaultLayout).toBe("grid");
-    expect(built.columns).toBe("3");
     expect(built.minRatingToDisplay).toBe(0);
   });
 });
@@ -100,11 +90,6 @@ describe("validateSettingsUpdate", () => {
     const checked = validateSettingsUpdate({
       notifyEmail: "support@example.com",
       requireCaptcha: false,
-      showStars: false,
-      showAvatars: true,
-      showDate: true,
-      defaultLayout: "feature",
-      columns: "2",
       minRatingToDisplay: 3,
       collectionUrl: "/reviews",
     });
@@ -114,10 +99,13 @@ describe("validateSettingsUpdate", () => {
   });
 
   it("ignores unknown keys instead of rejecting the save", () => {
-    const checked = validateSettingsUpdate({ showStars: false, injected: "<script>" });
+    const checked = validateSettingsUpdate({
+      requireCaptcha: false,
+      injected: "<script>",
+    });
     expect(checked.ok).toBe(true);
     if (!checked.ok) return;
-    expect(checked.values).toEqual({ showStars: false });
+    expect(checked.values).toEqual({ requireCaptcha: false });
   });
 
   it("accepts an empty object as a no-op", () => {
@@ -131,17 +119,18 @@ describe("validateSettingsUpdate", () => {
   });
 
   it("requires real booleans for the toggles", () => {
-    for (const key of ["requireCaptcha", "showStars", "showAvatars", "showDate"] as const) {
-      expect(validateSettingsUpdate({ [key]: "true" }).ok).toBe(false);
-      const checked = validateSettingsUpdate({ [key]: false });
-      expect(checked.ok).toBe(true);
-      if (checked.ok) expect(checked.values[key]).toBe(false);
-    }
+    const checkedBad = validateSettingsUpdate({ requireCaptcha: "true" });
+    expect(checkedBad.ok).toBe(false);
+    const checked = validateSettingsUpdate({ requireCaptcha: false });
+    expect(checked.ok).toBe(true);
+    if (checked.ok) expect(checked.values.requireCaptcha).toBe(false);
   });
 
   it("checks the email, allowing empty but not malformed addresses", () => {
     expect(validateSettingsUpdate({ notifyEmail: "" }).ok).toBe(true);
-    expect(validateSettingsUpdate({ notifyEmail: "support@example.com" }).ok).toBe(true);
+    expect(
+      validateSettingsUpdate({ notifyEmail: "support@example.com" }).ok,
+    ).toBe(true);
     for (const bad of ["not-an-email", "a@b", "a b@example.com"]) {
       const checked = validateSettingsUpdate({ notifyEmail: bad });
       expect(checked.ok).toBe(false);
@@ -149,20 +138,34 @@ describe("validateSettingsUpdate", () => {
     }
   });
 
-  it("keeps layout, columns, and minimum to their documented choices", () => {
-    expect(validateSettingsUpdate({ defaultLayout: "masonry" }).ok).toBe(false);
-    expect(validateSettingsUpdate({ columns: "6" }).ok).toBe(false);
+  it("keeps the minimum rating to its documented choices, and ignores the removed layout keys", () => {
     expect(validateSettingsUpdate({ minRatingToDisplay: 6 }).ok).toBe(false);
-    expect(validateSettingsUpdate({ defaultLayout: "feature" }).ok).toBe(true);
-    expect(validateSettingsUpdate({ columns: "4" }).ok).toBe(true);
     expect(validateSettingsUpdate({ minRatingToDisplay: "0" }).ok).toBe(true);
+    /**
+     * `defaultLayout` and `columns` stopped being settings: a block's layout
+     * lives with the block. An old client still sending them must not break,
+     * and must not have them honoured either.
+     */
+    const legacy = validateSettingsUpdate({
+      defaultLayout: "feature",
+      columns: "4",
+    });
+    expect(legacy.ok).toBe(true);
+    if (legacy.ok) expect(legacy.values).toEqual({});
   });
 
   it("accepts a same-origin page address for the collection link", () => {
     expect(validateSettingsUpdate({ collectionUrl: "" }).ok).toBe(true);
     expect(validateSettingsUpdate({ collectionUrl: "/reviews" }).ok).toBe(true);
-    expect(validateSettingsUpdate({ collectionUrl: "https://example.com/reviews" }).ok).toBe(true);
-    for (const bad of ['" onclick="1', "javascript:alert(1)", "no spaces allowed here"]) {
+    expect(
+      validateSettingsUpdate({ collectionUrl: "https://example.com/reviews" })
+        .ok,
+    ).toBe(true);
+    for (const bad of [
+      '" onclick="1',
+      "javascript:alert(1)",
+      "no spaces allowed here",
+    ]) {
       const checked = validateSettingsUpdate({ collectionUrl: bad });
       expect(checked.ok).toBe(false);
       if (!checked.ok) expect(checked.field).toBe("collectionUrl");

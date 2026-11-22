@@ -8,24 +8,38 @@
  */
 
 :root {
-  --jbt-gold: #f0a830;
-  --jbt-gold-soft: rgba(240, 168, 48, 0.16);
+  /* The design file's "Testimonials (--jbt)" variable collection, Light mode.
+     star / star-empty / accent / accent-soft / quote-mark / avatar-1..6. */
+  --jbt-gold: #c27803;
+  --jbt-gold-soft: #fdf4e3;
+  --jbt-star: #c27803;
+  --jbt-star-empty: #8a94a0;
+  --jbt-accent: #9a5b00;
+  --jbt-quote-mark: #c27803;
   --jbt-success: #34d399;
   --jbt-pending: #fbbf24;
   --jbt-danger: #f87171;
-  --jbt-card-bg: rgba(15, 23, 42, 0.03);
-  --jbt-card-border: rgba(15, 23, 42, 0.1);
-  --jbt-text-muted: rgba(15, 23, 42, 0.62);
-  --jbt-radius: 14px;
-  --jbt-radius-sm: 10px;
+  /* Surfaces the design binds to the site theme: site/surface, site/line. */
+  --jbt-card-bg: #ffffff;
+  --jbt-card-border: #e4e8ec;
+  --jbt-text-muted: #5b6570;
+  /* The design's radius scale: 12 for cards, 18 for feature, 999 for pills. */
+  --jbt-radius: 12px;
+  --jbt-radius-lg: 18px;
+  --jbt-radius-sm: 5px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --jbt-gold: #f0a830;
-    --jbt-card-bg: rgba(255, 255, 255, 0.045);
-    --jbt-card-border: rgba(255, 255, 255, 0.12);
-    --jbt-text-muted: rgba(232, 236, 245, 0.62);
+    --jbt-gold: #f5b451;
+    --jbt-gold-soft: #2a2113;
+    --jbt-star: #f5b451;
+    --jbt-star-empty: #6b7480;
+    --jbt-accent: #f5b451;
+    --jbt-quote-mark: #f5b451;
+    --jbt-card-bg: #161b22;
+    --jbt-card-border: #2b323b;
+    --jbt-text-muted: #9aa5b1;
   }
 }
 
@@ -90,11 +104,11 @@
 }
 
 .jbt-star--on {
-  color: var(--jbt-gold);
+  color: var(--jbt-star);
 }
 
 .jbt-star--off {
-  color: var(--jbt-card-border);
+  color: var(--jbt-star-empty);
 }
 
 .jbt-card__quote {
@@ -116,13 +130,19 @@
 
 /* ------------------------------------------------------------------- grid */
 
+/**
+ * The block centers and contains itself: the design's grid container is
+ * 1200px wide inside the 1440px section, so the cards align with the rest
+ * of the page's content at any viewport.
+ */
 .jbt {
-  margin: 0;
+  max-width: 1200px;
+  margin-inline: auto;
 }
 
 .jbt--grid {
   display: grid;
-  gap: 16px;
+  gap: 24px;
 }
 
 .jbt--grid.jbt--cols-2 {
@@ -156,10 +176,32 @@
 
 /* ----------------------------------------------------------------- slider */
 
+/**
+ * The slider reserves a lane on each side for the arrow buttons, so they sit
+ * beside the cards, never on top of them. The mobile design is a plain
+ * swipe strip: the lanes and the arrows go away there, and the dots plus
+ * touch scrolling carry the movement.
+ */
 .jbt--slider {
   position: relative;
+  padding-inline: 48px;
 }
 
+@media (max-width: 720px) {
+  .jbt--slider {
+    padding-inline: 0;
+  }
+
+  .jbt-arrow {
+    display: none;
+  }
+}
+
+/**
+ * The dots say where the visitor is, so the track's own scrollbar stays out
+ * of sight while the scrolling keeps working — for the wheel, the arrows,
+ * touch swipes, and keyboard focus alike.
+ */
 .jbt-track {
   display: grid;
   grid-auto-flow: column;
@@ -167,8 +209,12 @@
   gap: 16px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  padding-bottom: 8px;
-  scrollbar-width: thin;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.jbt-track::-webkit-scrollbar {
+  display: none;
 }
 
 .jbt--slider .jbt-card {
@@ -207,11 +253,11 @@
 }
 
 .jbt-arrow--prev {
-  left: -12px;
+  left: 7px;
 }
 
 .jbt-arrow--next {
-  right: -12px;
+  right: 7px;
 }
 
 .jbt-dots {
@@ -237,10 +283,23 @@
 
 /* ---------------------------------------------------------------- feature */
 
+/**
+ * The design's feature quote: one big quote at 880px wide, the quote mark
+ * picked out in its own colour, and the who row (avatar, name, role, stars)
+ * centered beneath it.
+ */
 .jbt--feature {
   text-align: center;
-  max-width: 760px;
+  max-width: 880px;
   margin: 0 auto;
+}
+
+.jbt-feature {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  align-items: center;
+  margin: 0;
 }
 
 .jbt-feature__quote {
@@ -250,28 +309,54 @@
   font-weight: 500;
 }
 
+.jbt-feature__quote::before {
+  content: "\201c";
+  color: var(--jbt-quote-mark);
+  font-size: 1.6em;
+  line-height: 0;
+  vertical-align: -0.12em;
+  margin-right: 4px;
+}
+
 .jbt-feature__who {
-  margin-top: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
 /* ------------------------------------------------------------ style sets */
 
+/**
+ * The design's card: a solid surface with a hairline border, 12px radius,
+ * 28px padding, and 20px between rating, quote, and who.
+ */
 .jbt--cards .jbt-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   background: var(--jbt-card-bg);
   border: 1px solid var(--jbt-card-border);
   border-radius: var(--jbt-radius);
-  padding: 18px;
+  padding: 28px;
   margin: 0;
 }
 
-.jbt--minimal .jbt-card {
+.jbt--cards .jbt-card__quote {
   margin: 0;
-  padding: 4px 0;
+}
+
+.jbt--cards .jbt-card__head {
+  margin-top: auto;
+}
+
+.jbt--minimal .jbt-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 20px 0;
   border-top: 1px solid var(--jbt-card-border);
 }
 
@@ -280,11 +365,14 @@
 }
 
 .jbt--quote .jbt-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   margin: 0;
-  padding: 20px 22px 18px;
-  border-left: 3px solid var(--jbt-gold);
+  padding: 24px 26px 20px;
+  border-left: 3px solid var(--jbt-quote-mark);
   background: var(--jbt-gold-soft);
-  border-radius: 0 var(--jbt-radius-sm) var(--jbt-radius-sm) 0;
+  border-radius: 0 var(--jbt-radius-lg) var(--jbt-radius-lg) 0;
 }
 
 .jbt--quote .jbt-card__quote {
@@ -310,15 +398,23 @@
 
 /* ------------------------------------------------------------------ strip */
 
+/**
+ * A centered pill, not a band: `fit-content` keeps the badge hugging its
+ * numbers, on the design's accent-soft surface with accent text.
+ */
 .jbt-strip {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   flex-wrap: wrap;
-  padding: 10px 16px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 2px auto 24px;
+  padding: 10px 18px;
   border-radius: 999px;
   background: var(--jbt-gold-soft);
+  color: var(--jbt-accent);
   font-size: 13.5px;
   font-weight: 600;
 }
@@ -328,5 +424,5 @@
 }
 
 .jbt-strip__avg {
-  color: var(--jbt-gold);
+  color: var(--jbt-star);
 }

@@ -35,14 +35,17 @@ export const TESTIMONIALS_BLOCK = "justflows.brayne-testimonials.reviews";
 export const REVIEW_FORM_BLOCK = "justflows.brayne-testimonials.form";
 export const STRIP_BLOCK = "justflows.brayne-testimonials.strip";
 
-/** Sample records for the builder preview. Never saved, clearly samples. */
+/**
+ * Sample records for the builder preview, copied from the design file's own
+ * sample cards. Never saved, clearly samples.
+ */
 export const SAMPLE_RECORDS: RenderRecord[] = [
   {
     id: "sample-1",
     quote:
-      "They answered every question the same day, and the site was live by the weekend.",
-    personName: "Abena Owusu",
-    role: "Owner, Sunshade Fabrics",
+      "They rebuilt our booking page in two weeks and orders went up the very next month. Clear updates the whole way through.",
+    personName: "Maria Santos",
+    role: "Owner, Sample Bakery",
     rating: 5,
     avatarUrl: "",
     approvedAt: "2026-11-10T09:00:00.000Z",
@@ -50,21 +53,52 @@ export const SAMPLE_RECORDS: RenderRecord[] = [
   {
     id: "sample-2",
     quote:
-      "Straightforward pricing and no surprises. Our bookings went up within a month.",
-    personName: "Daniel Mensah",
-    role: "Manager, Ridge Dental",
-    rating: 4,
+      "Support answers every question the same day. The dashboard saves our small team hours every single week.",
+    personName: "Daniel Reyes",
+    role: "Operations Lead, Example Logistics",
+    rating: 5,
     avatarUrl: "",
     approvedAt: "2026-11-12T09:00:00.000Z",
   },
   {
     id: "sample-3",
-    quote: "The contact button alone has paid for the whole website.",
-    personName: "Efua Sarpong",
-    role: "",
-    rating: null,
+    quote:
+      "Our menu updates now take minutes instead of a phone call. Customers noticed the difference straight away.",
+    personName: "Kofi Mensah",
+    role: "Manager, Placeholder Cafe",
+    rating: 4,
     avatarUrl: "",
     approvedAt: "2026-11-14T09:00:00.000Z",
+  },
+  {
+    id: "sample-4",
+    quote:
+      "Friendly team, honest advice and no upselling. They told us what we did not need, which saved us money.",
+    personName: "Ana Cruz",
+    role: "Founder, Demo Studio",
+    rating: 5,
+    avatarUrl: "",
+    approvedAt: "2026-11-16T09:00:00.000Z",
+  },
+  {
+    id: "sample-5",
+    quote:
+      "Good result overall. The first draft missed our tone, but the second round was spot on and delivered on time.",
+    personName: "Lea Navarro",
+    role: "Marketing, Sample Clinic",
+    rating: 4,
+    avatarUrl: "",
+    approvedAt: "2026-11-18T09:00:00.000Z",
+  },
+  {
+    id: "sample-6",
+    quote:
+      "Booked our first customer through the new form on day one. Simple to use and it looks great on phones.",
+    personName: "Sam Torres",
+    role: "Owner, Example Garage",
+    rating: 5,
+    avatarUrl: "",
+    approvedAt: "2026-11-20T09:00:00.000Z",
   },
 ];
 
@@ -107,7 +141,11 @@ function renderRecords(raw: unknown): RenderRecord[] {
     }));
 }
 
-/** The testimonial display block. */
+/**
+ * The testimonial display block. Layout and columns are the author's choice
+ * per block, in the page builder's inspector; the static defaults are what
+ * a newly inserted block starts from.
+ */
 export function testimonialsBlock(): PluginBlockDefinition {
   return {
     type: TESTIMONIALS_BLOCK,

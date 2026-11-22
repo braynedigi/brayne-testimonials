@@ -82,12 +82,14 @@
     "editor.avatarUrl": "Avatar image address",
     "editor.avatarUrl.hint":
       "Optional. An image from this site's media library, or leave empty for initials.",
-    "editor.avatarUrl.invalid": "Enter an image address from this site, or leave it empty.",
+    "editor.avatarUrl.invalid":
+      "Enter an image address from this site, or leave it empty.",
     "editor.rating": "Star rating",
     "editor.rating.hint": "Optional. Unrated reviews show no stars.",
     "editor.rating.none": "No rating",
     "editor.consent": "Permission to publish",
-    "editor.consent.hint": "You confirm the customer allowed these words to be shown.",
+    "editor.consent.hint":
+      "You confirm the customer allowed these words to be shown.",
     "editor.consent.required": "Permission to publish is required.",
     "editor.status": "Status",
     "editor.status.pending": "Pending - hidden until approved",
@@ -97,23 +99,30 @@
     "settings.title": "Settings",
     "settings.notifications": "Notifications",
     "settings.notifyEmail": "Notification email",
-    "settings.notifyEmail.hint": "Where new submissions are announced. Empty sends no email.",
-    "settings.notifyEmail.invalid": "Enter a valid email address, or leave it empty.",
+    "settings.notifyEmail.hint":
+      "Where new submissions are announced. Empty sends no email.",
+    "settings.notifyEmail.invalid":
+      "Enter a valid email address, or leave it empty.",
     "settings.moderation": "Moderation",
     "settings.requireCaptcha": "Require CAPTCHA",
     "settings.requireCaptcha.hint":
       "Uses the site's own configured provider. Every submission is moderated either way.",
     "settings.noCaptcha":
       "The site has no CAPTCHA configured, so submissions rely on moderation alone.",
-    "settings.display": "Display defaults",
-    "settings.showStars": "Show star ratings",
-    "settings.showStars.hint": "Unrated reviews render without stars.",
-    "settings.showAvatars": "Show avatars",
-    "settings.showAvatars.hint": "The reviewer's image, or a colour chip with their initials.",
-    "settings.showDate": "Show review date",
-    "settings.showDate.hint": "Displays when the review was approved.",
-    "settings.defaultLayout": "Default layout",
-    "settings.columns": "Grid columns",
+    "settings.display": "Display",
+    "settings.perBlock":
+      "Stars, avatars, and dates are chosen per block in the page builder: open the page, select the Testimonials block, and switch them there.",
+    "settings.layout": "Display layout",
+    "settings.layout.grid": "Grid",
+    "settings.layout.slider": "Slider",
+    "settings.layout.feature": "Feature quote",
+    "settings.layout.hint":
+      "Applies the chosen layout to every Testimonials block on this site and publishes the pages it touches. The choice is stored on the blocks themselves, so the page builder stays truthful.",
+    "settings.layout.apply": "Apply to every Testimonials block",
+    "settings.layout.busy": "Applying...",
+    "settings.layout.applied": "Applied to {n} page(s).",
+    "settings.layout.none": "No pages with a Testimonials block were found.",
+    "settings.layout.error": "The layout could not be applied: ",
     "settings.minRating": "Minimum star rating",
     "settings.minRating.hint":
       "0 shows everything. When a minimum is set, unrated reviews are hidden from the site but stay visible here.",
@@ -171,6 +180,10 @@
     saveError: "",
     fieldErrors: {},
     toastTimer: 0,
+    /** The layout the Display screen would apply to every placed block. */
+    layoutChoice: "slider",
+    /** The last "Apply layout" outcome, or null when it has not run. */
+    layoutApply: null,
   };
 
   /** Look a label up in the loaded catalog, falling back to English. */
@@ -213,10 +226,18 @@
     }
 
     function onMessage(event) {
-      if (event.origin !== window.location.origin || event.source !== window.parent) return;
+      if (
+        event.origin !== window.location.origin ||
+        event.source !== window.parent
+      )
+        return;
       var data = event.data;
       if (!data || data.source !== HOST_SOURCE) return;
-      if (data.type === "context" && data.context && typeof data.context === "object") {
+      if (
+        data.type === "context" &&
+        data.context &&
+        typeof data.context === "object"
+      ) {
         context = data.context;
         contextListeners.forEach(function (listener) {
           listener(context);
@@ -292,7 +313,9 @@
     }
     (children || []).forEach(function (child) {
       if (child === null || child === undefined || child === false) return;
-      el.appendChild(typeof child === "string" ? document.createTextNode(child) : child);
+      el.appendChild(
+        typeof child === "string" ? document.createTextNode(child) : child,
+      );
     });
     return el;
   }
@@ -309,9 +332,14 @@
     });
     for (var index = 0; index < 5; index += 1) {
       row.appendChild(
-        h("span", { class: "jbt-star " + (index < rating ? "jbt-star--on" : "jbt-star--off") }, [
-          "\u2605",
-        ]),
+        h(
+          "span",
+          {
+            class:
+              "jbt-star " + (index < rating ? "jbt-star--on" : "jbt-star--off"),
+          },
+          ["\u2605"],
+        ),
       );
     }
     return row;
@@ -353,7 +381,8 @@
   /** Read one draft value for the active view, so re-renders keep edits. */
   function draftValue(key) {
     if (state.view === "editor" && state.draft) return state.draft[key];
-    if (state.view === "settings" && state.settingsDraft) return state.settingsDraft[key];
+    if (state.view === "settings" && state.settingsDraft)
+      return state.settingsDraft[key];
     return undefined;
   }
 
@@ -418,7 +447,9 @@
 
   function fieldError(key) {
     var message = state.fieldErrors[key];
-    return message ? h("p", { class: "jbt-field__error", role: "alert", text: message }) : null;
+    return message
+      ? h("p", { class: "jbt-field__error", role: "alert", text: message })
+      : null;
   }
 
   /** A toggle row: real checkbox, label, and hint beside it. */
@@ -454,7 +485,11 @@
       setDraftValue(key, event.target.value);
     });
     return h("div", { class: "jbt-field" }, [
-      h("label", { class: "jbt-field__label", for: "jbt-field-" + key, text: t(labelKey) }),
+      h("label", {
+        class: "jbt-field__label",
+        for: "jbt-field-" + key,
+        text: t(labelKey),
+      }),
       input,
       fieldError(key),
       h("p", { class: "jbt-field__hint", text: t(hintKey) }),
@@ -472,11 +507,16 @@
     });
     choices.forEach(function (choice) {
       var option = h("option", { value: choice.value }, [choice.label]);
-      if (String(draftValue(key)) === String(choice.value)) option.selected = true;
+      if (String(draftValue(key)) === String(choice.value))
+        option.selected = true;
       select.appendChild(option);
     });
     return h("div", { class: "jbt-field" }, [
-      h("label", { class: "jbt-field__label", for: "jbt-field-" + key, text: t(labelKey) }),
+      h("label", {
+        class: "jbt-field__label",
+        for: "jbt-field-" + key,
+        text: t(labelKey),
+      }),
       select,
       fieldError(key),
       hintKey ? h("p", { class: "jbt-field__hint", text: t(hintKey) }) : null,
@@ -488,14 +528,16 @@
   function loadData() {
     return fetchJson(API_BASE + "/admin-data").then(function (result) {
       if (!result.ok) {
-        state.loadError = result.status === 403 ? t("load.forbidden") : t("load.failed");
+        state.loadError =
+          result.status === 403 ? t("load.forbidden") : t("load.failed");
         state.data = null;
         return;
       }
       state.loadError = "";
       state.data = result.body;
       if (!state.draft) state.draft = null;
-      if (!state.settingsDraft) state.settingsDraft = Object.assign({}, result.body.settings);
+      if (!state.settingsDraft)
+        state.settingsDraft = Object.assign({}, result.body.settings);
     });
   }
 
@@ -515,7 +557,9 @@
       return;
     }
     if (!state.data) {
-      root.appendChild(h("div", { class: "jbt-skeleton", "aria-hidden": "true" }));
+      root.appendChild(
+        h("div", { class: "jbt-skeleton", "aria-hidden": "true" }),
+      );
       return;
     }
 
@@ -600,7 +644,11 @@
         h("div", {
           class:
             "jbt-stat__value" +
-            (gold ? " jbt-stat__value--gold" : value === null ? " jbt-stat__value--muted" : ""),
+            (gold
+              ? " jbt-stat__value--gold"
+              : value === null
+                ? " jbt-stat__value--muted"
+                : ""),
           text: value === null ? "-" : String(value),
         }),
       ]);
@@ -622,7 +670,10 @@
             h("p", { class: "jbt-banner__title" }, [
               stats.pending + " " + t("banner.pending.title"),
             ]),
-            h("p", { class: "jbt-banner__body", text: t("banner.pending.body") }),
+            h("p", {
+              class: "jbt-banner__body",
+              text: t("banner.pending.body"),
+            }),
           ]),
           h(
             "button",
@@ -718,7 +769,9 @@
     }
 
     if (visible.length === 0) {
-      wrap.appendChild(h("p", { class: "jbt-field__hint", text: t("inbox.filtered.empty") }));
+      wrap.appendChild(
+        h("p", { class: "jbt-field__hint", text: t("inbox.filtered.empty") }),
+      );
       return wrap;
     }
 
@@ -739,20 +792,28 @@
         {
           class:
             "jbt-pill " +
-            (record.status === "approved" ? "jbt-pill--success" : "jbt-pill--warning"),
+            (record.status === "approved"
+              ? "jbt-pill--success"
+              : "jbt-pill--warning"),
         },
         [
           h("span", { class: "jbt-dot" }),
-          t(record.status === "approved" ? "record.approved" : "record.pending"),
+          t(
+            record.status === "approved" ? "record.approved" : "record.pending",
+          ),
         ],
       ),
     );
     if (record.featuredAt) {
-      pills.appendChild(h("span", { class: "jbt-pill" }, ["\u2605 " + t("record.featured")]));
+      pills.appendChild(
+        h("span", { class: "jbt-pill" }, ["\u2605 " + t("record.featured")]),
+      );
     }
     if (min >= 1 && record.rating === null && record.status === "approved") {
       pills.appendChild(
-        h("span", { class: "jbt-pill jbt-pill--muted" }, [t("record.hiddenByMinimum")]),
+        h("span", { class: "jbt-pill jbt-pill--muted" }, [
+          t("record.hiddenByMinimum"),
+        ]),
       );
     }
 
@@ -762,13 +823,25 @@
         "button",
         {
           class:
-            "jbt-btn " + (record.status === "approved" ? "jbt-btn--quiet" : "jbt-btn--primary"),
+            "jbt-btn " +
+            (record.status === "approved"
+              ? "jbt-btn--quiet"
+              : "jbt-btn--primary"),
           type: "button",
           onclick: function () {
-            moderate(record.id, record.status === "approved" ? "unapprove" : "approve");
+            moderate(
+              record.id,
+              record.status === "approved" ? "unapprove" : "approve",
+            );
           },
         },
-        [t(record.status === "approved" ? "record.unapprove" : "record.approve")],
+        [
+          t(
+            record.status === "approved"
+              ? "record.unapprove"
+              : "record.approve",
+          ),
+        ],
       ),
     );
     actions.appendChild(
@@ -804,7 +877,8 @@
           class: "jbt-btn jbt-btn--danger",
           type: "button",
           onclick: function () {
-            if (window.confirm(t("record.deleteConfirm"))) moderate(record.id, "delete");
+            if (window.confirm(t("record.deleteConfirm")))
+              moderate(record.id, "delete");
           },
         },
         [t("record.delete")],
@@ -815,7 +889,9 @@
       h("div", { class: "jbt-record__top" }, [
         h("div", { class: "jbt-record__who" }, [
           h("div", { class: "jbt-record__name", text: record.personName }),
-          record.role ? h("div", { class: "jbt-record__role", text: record.role }) : null,
+          record.role
+            ? h("div", { class: "jbt-record__role", text: record.role })
+            : null,
         ]),
         pills,
       ]),
@@ -824,7 +900,10 @@
       h("div", { class: "jbt-record__meta" }, [
         t("date.submitted") + " " + friendlyDate(record.submittedAt),
         record.approvedAt
-          ? " \u00b7 " + t("date.approved") + " " + friendlyDate(record.approvedAt)
+          ? " \u00b7 " +
+            t("date.approved") +
+            " " +
+            friendlyDate(record.approvedAt)
           : "",
       ]),
       actions,
@@ -939,13 +1018,25 @@
             rows: 4,
             maxlength: 500,
           }),
-          labeledInput("personName", "editor.personName", "editor.personName.hint", {
-            maxlength: 60,
+          labeledInput(
+            "personName",
+            "editor.personName",
+            "editor.personName.hint",
+            {
+              maxlength: 60,
+            },
+          ),
+          labeledInput("role", "editor.role", "editor.role.hint", {
+            maxlength: 80,
           }),
-          labeledInput("role", "editor.role", "editor.role.hint", { maxlength: 80 }),
-          labeledInput("avatarUrl", "editor.avatarUrl", "editor.avatarUrl.hint", {
-            maxlength: 500,
-          }),
+          labeledInput(
+            "avatarUrl",
+            "editor.avatarUrl",
+            "editor.avatarUrl.hint",
+            {
+              maxlength: 500,
+            },
+          ),
           h("div", { class: "jbt-field" }, [
             h("span", { class: "jbt-field__label", text: t("editor.rating") }),
             ratingPicker(),
@@ -1007,12 +1098,20 @@
     wrap.appendChild(
       h("section", { class: "jbt-card" }, [
         h("div", { class: "jbt-card__head" }, [
-          h("h2", { class: "jbt-card__title", text: t("settings.notifications") }),
+          h("h2", {
+            class: "jbt-card__title",
+            text: t("settings.notifications"),
+          }),
         ]),
         h("div", { class: "jbt-card__body" }, [
-          labeledInput("notifyEmail", "settings.notifyEmail", "settings.notifyEmail.hint", {
-            maxlength: 200,
-          }),
+          labeledInput(
+            "notifyEmail",
+            "settings.notifyEmail",
+            "settings.notifyEmail.hint",
+            {
+              maxlength: 200,
+            },
+          ),
         ]),
       ]),
     );
@@ -1023,13 +1122,24 @@
           h("h2", { class: "jbt-card__title", text: t("settings.moderation") }),
         ]),
         h("div", { class: "jbt-card__body" }, [
-          checkrowNode("requireCaptcha", "settings.requireCaptcha", "settings.requireCaptcha.hint"),
+          checkrowNode(
+            "requireCaptcha",
+            "settings.requireCaptcha",
+            "settings.requireCaptcha.hint",
+          ),
           noCaptcha
-            ? h("div", { class: "jbt-banner jbt-banner--info", role: "status" }, [
-                h("div", { class: "jbt-banner__text" }, [
-                  h("p", { class: "jbt-banner__title", text: t("settings.noCaptcha") }),
-                ]),
-              ])
+            ? h(
+                "div",
+                { class: "jbt-banner jbt-banner--info", role: "status" },
+                [
+                  h("div", { class: "jbt-banner__text" }, [
+                    h("p", {
+                      class: "jbt-banner__title",
+                      text: t("settings.noCaptcha"),
+                    }),
+                  ]),
+                ],
+              )
             : null,
         ]),
       ]),
@@ -1041,27 +1151,32 @@
           h("h2", { class: "jbt-card__title", text: t("settings.display") }),
         ]),
         h("div", { class: "jbt-card__body" }, [
-          checkrowNode("showStars", "settings.showStars", "settings.showStars.hint"),
-          checkrowNode("showAvatars", "settings.showAvatars", "settings.showAvatars.hint"),
-          checkrowNode("showDate", "settings.showDate", "settings.showDate.hint"),
-          labeledSelect("defaultLayout", "settings.defaultLayout", null, [
-            { value: "grid", label: "Grid" },
-            { value: "slider", label: "Slider" },
-            { value: "feature", label: "Feature quote" },
-          ]),
-          labeledSelect("columns", "settings.columns", null, [
-            { value: "2", label: "Two" },
-            { value: "3", label: "Three" },
-            { value: "4", label: "Four" },
-          ]),
-          labeledSelect("minRatingToDisplay", "settings.minRating", "settings.minRating.hint", [
-            { value: "0", label: "No minimum" },
-            { value: "1", label: "1 star and above" },
-            { value: "2", label: "2 stars and above" },
-            { value: "3", label: "3 stars and above" },
-            { value: "4", label: "4 stars and above" },
-            { value: "5", label: "5 stars only" },
-          ]),
+          /**
+           * Stars, avatars, and dates are per-block choices in the page
+           * builder, so the screen says where they live rather than offering
+           * site toggles the placed blocks never read.
+           */
+          h("p", { class: "jbt-hint", text: t("settings.perBlock") }),
+          /**
+           * Layout is different: this one really can be switched here. The
+           * button edits every placed Testimonials block on the site through
+           * the content API and publishes the pages it touched, so what the
+           * admin sees is what the site shows.
+           */
+          layoutApplyNode(),
+          labeledSelect(
+            "minRatingToDisplay",
+            "settings.minRating",
+            "settings.minRating.hint",
+            [
+              { value: "0", label: "No minimum" },
+              { value: "1", label: "1 star and above" },
+              { value: "2", label: "2 stars and above" },
+              { value: "3", label: "3 stars and above" },
+              { value: "4", label: "4 stars and above" },
+              { value: "5", label: "5 stars only" },
+            ],
+          ),
         ]),
       ]),
     );
@@ -1069,11 +1184,201 @@
     return wrap;
   }
 
+  /* --------------------------------------------------- apply-layout control */
+
+  /**
+   * The layout switch on the Display screen. Unlike the settings around it,
+   * this control edits the placed Testimonials blocks themselves: every
+   * reviews block on every page gets the chosen layout, and each touched
+   * page is published. One click here and the site changes, with no draft to
+   * remember to publish.
+   */
+  function layoutApplyNode() {
+    var busy = state.layoutApply && state.layoutApply.status === "busy";
+    var choices = [
+      { value: "grid", label: t("settings.layout.grid") },
+      { value: "slider", label: t("settings.layout.slider") },
+      { value: "feature", label: t("settings.layout.feature") },
+    ];
+    var select = h("select", { class: "jbt-input", id: "jbt-layout" });
+    choices.forEach(function (choice) {
+      var option = h("option", { value: choice.value }, [choice.label]);
+      if (state.layoutChoice === choice.value) option.selected = true;
+      select.appendChild(option);
+    });
+    select.addEventListener("change", function (event) {
+      state.layoutChoice = event.target.value;
+    });
+    return h("div", { class: "jbt-field" }, [
+      h("label", {
+        class: "jbt-field__label",
+        for: "jbt-layout",
+        text: t("settings.layout"),
+      }),
+      select,
+      h("p", { class: "jbt-field__hint", text: t("settings.layout.hint") }),
+      h(
+        "button",
+        {
+          class: "jbt-btn",
+          type: "button",
+          disabled: busy ? "disabled" : null,
+          onclick: function () {
+            applyLayoutEverywhere(state.layoutChoice);
+          },
+        },
+        [busy ? t("settings.layout.busy") : t("settings.layout.apply")],
+      ),
+      state.layoutApply && state.layoutApply.message
+        ? h(
+            "p",
+            {
+              class:
+                state.layoutApply.status === "error"
+                  ? "jbt-field__error"
+                  : "jbt-field__hint",
+              role: "status",
+              text: state.layoutApply.message,
+            },
+            [],
+          )
+        : null,
+    ]);
+  }
+
+  /** Set the layout on every reviews node in a block tree, in place. */
+  function markReviewsBlocks(nodes, layout) {
+    if (!Array.isArray(nodes)) return false;
+    var changed = false;
+    nodes.forEach(function (node) {
+      if (node && typeof node === "object" && !Array.isArray(node)) {
+        if (node.type === "justflows.brayne-testimonials.reviews") {
+          if (
+            !node.props ||
+            typeof node.props !== "object" ||
+            Array.isArray(node.props)
+          ) {
+            node.props = {};
+          }
+          if (node.props.layout !== layout) {
+            node.props.layout = layout;
+            changed = true;
+          }
+        }
+        if (
+          Array.isArray(node.children) &&
+          markReviewsBlocks(node.children, layout)
+        ) {
+          changed = true;
+        }
+      }
+    });
+    return changed;
+  }
+
+  /**
+   * Walk every page, apply the layout to its reviews blocks, and publish the
+   * pages that changed. Runs with the administrator session the host already
+   * gave this app, exactly like the app's own routes.
+   */
+  function applyLayoutEverywhere(layout) {
+    if (!layout || ["grid", "slider", "feature"].indexOf(layout) < 0) return;
+    state.layoutApply = { status: "busy", message: "" };
+    render();
+
+    sendHost("GET", "/api/content")
+      .then(function (list) {
+        var items =
+          list.body && Array.isArray(list.body.items)
+            ? list.body.items.filter(function (row) {
+                return row && row.type === "page";
+              })
+            : [];
+        var touched = 0;
+        var chain = Promise.resolve();
+        items.forEach(function (page) {
+          chain = chain
+            .then(function () {
+              return sendHost("GET", "/api/content/" + page.id);
+            })
+            .then(function (row) {
+              var blocks = row.body && row.body.blocks;
+              if (!blocks || !Array.isArray(blocks.blocks)) return null;
+              if (!markReviewsBlocks(blocks.blocks, layout)) return null;
+              return sendHost("PATCH", "/api/content/" + page.id, {
+                blocks: blocks,
+              })
+                .then(function (patched) {
+                  if (!patched.ok) throw page.title;
+                  return sendHost(
+                    "POST",
+                    "/api/content/" + page.id + "/publish",
+                    {},
+                  );
+                })
+                .then(function (published) {
+                  if (!published.ok) throw page.title;
+                  touched += 1;
+                });
+            });
+        });
+        return chain.then(function () {
+          return touched;
+        });
+      })
+      .then(function (touched) {
+        state.layoutApply = {
+          status: "done",
+          message:
+            touched > 0
+              ? t("settings.layout.applied").replace("{n}", String(touched))
+              : t("settings.layout.none"),
+        };
+        render();
+      })
+      .catch(function (failed) {
+        state.layoutApply = {
+          status: "error",
+          message:
+            t("settings.layout.error") +
+            (typeof failed === "string" && failed ? failed : ""),
+        };
+        render();
+      });
+  }
+
+  /** A host API call (outside the plugin's own namespace) with the session CSRF. */
+  function sendHost(method, path, body) {
+    var token = readCsrfCookie();
+    var attempt = token
+      ? Promise.resolve(token)
+      : fetch("/api/auth/csrf", { credentials: "same-origin" })
+          .catch(function () {
+            return null;
+          })
+          .then(function () {
+            return readCsrfCookie();
+          });
+
+    return attempt.then(function (csrf) {
+      return fetchJson(path, {
+        method: method,
+        headers: {
+          "content-type": "application/json",
+          "x-csrf-token": csrf || "",
+        },
+        body: body === undefined ? undefined : JSON.stringify(body),
+      });
+    });
+  }
+
   /* --------------------------------------------------------------- collect */
 
   function renderCollect() {
     var wrap = h("div", { class: "jbt-view" }, []);
-    var url = state.settingsDraft ? String(state.settingsDraft.collectionUrl || "") : "";
+    var url = state.settingsDraft
+      ? String(state.settingsDraft.collectionUrl || "")
+      : "";
 
     wrap.appendChild(
       h("header", { class: "jbt-head" }, [
@@ -1119,13 +1424,16 @@
             placeholder: "/reviews",
             maxlength: 500,
           }),
-          h("div", { class: "jbt-record__actions" }, [saveButton("collect.saveUrl")]),
+          h("div", { class: "jbt-record__actions" }, [
+            saveButton("collect.saveUrl"),
+          ]),
         ]),
       ]),
     );
 
     if (url) {
-      var absolute = url.indexOf("http") === 0 ? url : window.location.origin + url;
+      var absolute =
+        url.indexOf("http") === 0 ? url : window.location.origin + url;
       wrap.appendChild(
         h("section", { class: "jbt-card" }, [
           h("div", { class: "jbt-card__head" }, [
@@ -1156,7 +1464,9 @@
         ]),
       );
     } else if (state.data.settings.collectionUrl) {
-      wrap.appendChild(h("p", { class: "jbt-field__hint", text: t("collect.noUrl") }));
+      wrap.appendChild(
+        h("p", { class: "jbt-field__hint", text: t("collect.noUrl") }),
+      );
     }
 
     return wrap;
@@ -1183,8 +1493,10 @@
   function collectDraftErrors() {
     var errors = {};
     var draft = state.draft || {};
-    if (!String(draft.quote || "").trim()) errors.quote = t("editor.quote.required");
-    if (!String(draft.personName || "").trim()) errors.personName = t("editor.personName.required");
+    if (!String(draft.quote || "").trim())
+      errors.quote = t("editor.quote.required");
+    if (!String(draft.personName || "").trim())
+      errors.personName = t("editor.personName.required");
     if (draft.consent !== true) errors.consent = t("editor.consent.required");
     var avatar = String(draft.avatarUrl || "").trim();
     if (avatar && !/^(?:https?:\/\/[^\s"'<>]+|\/[^\s"'<>]*)$/.test(avatar)) {
@@ -1231,8 +1543,11 @@
         render();
         return;
       }
-      state.saveError = result.body.error ? String(result.body.error) : t("save.failed");
-      if (result.body.field) state.fieldErrors[result.body.field] = state.saveError;
+      state.saveError = result.body.error
+        ? String(result.body.error)
+        : t("save.failed");
+      if (result.body.field)
+        state.fieldErrors[result.body.field] = state.saveError;
       render();
     });
   }
@@ -1242,7 +1557,10 @@
     var draft = state.settingsDraft || {};
     var avatarRule = /^(?:https?:\/\/[^\s"'<>]+|\/[^\s"'<>]*)$/;
     var clientErrors = {};
-    if (state.view === "collect" && !avatarRule.test(String(draft.collectionUrl || "").trim())) {
+    if (
+      state.view === "collect" &&
+      !avatarRule.test(String(draft.collectionUrl || "").trim())
+    ) {
       clientErrors.collectionUrl = t("collect.url.invalid");
     }
     if (Object.keys(clientErrors).length > 0) {
@@ -1262,11 +1580,6 @@
     } else {
       payload.notifyEmail = String(draft.notifyEmail || "").trim();
       payload.requireCaptcha = draft.requireCaptcha === true;
-      payload.showStars = draft.showStars === true;
-      payload.showAvatars = draft.showAvatars === true;
-      payload.showDate = draft.showDate === true;
-      payload.defaultLayout = draft.defaultLayout || "grid";
-      payload.columns = draft.columns || "3";
       payload.minRatingToDisplay = Number(draft.minRatingToDisplay || 0);
     }
 
@@ -1282,22 +1595,29 @@
         render();
         return;
       }
-      state.saveError = result.body.error ? String(result.body.error) : t("save.failed");
-      if (result.body.field) state.fieldErrors[result.body.field] = state.saveError;
+      state.saveError = result.body.error
+        ? String(result.body.error)
+        : t("save.failed");
+      if (result.body.field)
+        state.fieldErrors[result.body.field] = state.saveError;
       render();
     });
   }
 
   function moderate(id, action) {
-    send("POST", "/moderate", { id: id, action: action }).then(function (result) {
-      if (result.ok) {
-        state.data = result.body;
+    send("POST", "/moderate", { id: id, action: action }).then(
+      function (result) {
+        if (result.ok) {
+          state.data = result.body;
+          render();
+          return;
+        }
+        state.saveError = result.body.error
+          ? String(result.body.error)
+          : t("load.failed");
         render();
-        return;
-      }
-      state.saveError = result.body.error ? String(result.body.error) : t("load.failed");
-      render();
-    });
+      },
+    );
   }
 
   /** One authorized JSON call to the plugin's own routes. */
@@ -1331,7 +1651,8 @@
     var catalogs = context && context.catalogs ? context.catalogs : null;
     var wanted = null;
     if (catalogs) {
-      if (context.locale && catalogs[context.locale]) wanted = catalogs[context.locale];
+      if (context.locale && catalogs[context.locale])
+        wanted = catalogs[context.locale];
       if (!wanted) {
         var base = String(context.locale || "en").split("-")[0];
         if (catalogs[base]) wanted = catalogs[base];
@@ -1368,7 +1689,8 @@
       var media = window.matchMedia("(prefers-color-scheme: dark)");
       var sync = function () {
         if (state.theme) return;
-        if (media.matches) document.documentElement.setAttribute("data-jbt-theme", "dark");
+        if (media.matches)
+          document.documentElement.setAttribute("data-jbt-theme", "dark");
         else document.documentElement.removeAttribute("data-jbt-theme");
         render();
       };

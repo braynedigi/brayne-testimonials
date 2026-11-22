@@ -5,6 +5,11 @@
  * this module is the single place that decides what the rest of the plugin
  * accepts. The defaults mirror `justflows.json`, and a test pins them together
  * so the two cannot drift.
+ *
+ * Layout and column counts are deliberately NOT settings: a block's layout
+ * is stored with the block itself, chosen in the page builder, and a
+ * "default layout" setting next to it promised something the placed blocks
+ * never followed, so it is gone.
  */
 
 /** Plugin id. Must match `justflows.json` and the folder the host discovers. */
@@ -33,11 +38,6 @@ export type BlockSource = (typeof SOURCES)[number];
 export const SETTING_KEYS = [
   "notifyEmail",
   "requireCaptcha",
-  "showStars",
-  "showAvatars",
-  "showDate",
-  "defaultLayout",
-  "columns",
   "minRatingToDisplay",
   "collectionUrl",
 ] as const;
@@ -48,11 +48,6 @@ export type SettingKey = (typeof SETTING_KEYS)[number];
 export interface Settings {
   notifyEmail: string;
   requireCaptcha: boolean;
-  showStars: boolean;
-  showAvatars: boolean;
-  showDate: boolean;
-  defaultLayout: Layout;
-  columns: ColumnCount;
   /** 0 shows everything; 1-5 hides lower and unrated reviews. */
   minRatingToDisplay: number;
   /** The page that holds the review form, for the collection panel's link. */
@@ -63,11 +58,6 @@ export interface Settings {
 export interface RawSettings {
   notifyEmail?: unknown;
   requireCaptcha?: unknown;
-  showStars?: unknown;
-  showAvatars?: unknown;
-  showDate?: unknown;
-  defaultLayout?: unknown;
-  columns?: unknown;
   minRatingToDisplay?: unknown;
   collectionUrl?: unknown;
 }
@@ -86,11 +76,6 @@ const COLLECTION_URL_RE = /^(?:https?:\/\/[^\s"'<>]+|\/[^\s"'<>]*)$/;
 export const SETTING_DEFAULTS: Record<SettingKey, string | boolean> = {
   notifyEmail: "",
   requireCaptcha: true,
-  showStars: true,
-  showAvatars: true,
-  showDate: false,
-  defaultLayout: "grid",
-  columns: "3",
   minRatingToDisplay: "0",
   collectionUrl: "",
 };
@@ -104,25 +89,37 @@ export function toBoolean(raw: unknown, fallback: boolean): boolean {
 }
 
 /** Coerce a stored setting to a bounded integer. */
-export function toIntIn(raw: unknown, min: number, max: number, fallback: number): number {
-  const value = typeof raw === "number" ? raw : Number.parseInt(String(raw ?? ""), 10);
+export function toIntIn(
+  raw: unknown,
+  min: number,
+  max: number,
+  fallback: number,
+): number {
+  const value =
+    typeof raw === "number" ? raw : Number.parseInt(String(raw ?? ""), 10);
   if (!Number.isFinite(value) || value < min || value > max) return fallback;
   return Math.trunc(value);
 }
 
 /** A stored or submitted layout, or the default when unknown. */
 export function resolveLayout(raw: unknown): Layout {
-  return (LAYOUTS as readonly string[]).includes(String(raw)) ? (raw as Layout) : "grid";
+  return (LAYOUTS as readonly string[]).includes(String(raw))
+    ? (raw as Layout)
+    : "grid";
 }
 
 /** A stored or submitted column count, or the default when unknown. */
 export function resolveColumns(raw: unknown): ColumnCount {
-  return (COLUMNS as readonly string[]).includes(String(raw)) ? (raw as ColumnCount) : "3";
+  return (COLUMNS as readonly string[]).includes(String(raw))
+    ? (raw as ColumnCount)
+    : "3";
 }
 
 /** A stored or submitted style preset, or the default when unknown. */
 export function resolveStyle(raw: unknown): StylePreset {
-  return (STYLES as readonly string[]).includes(String(raw)) ? (raw as StylePreset) : "cards";
+  return (STYLES as readonly string[]).includes(String(raw))
+    ? (raw as StylePreset)
+    : "cards";
 }
 
 /** A stored or submitted source filter, or "all" when unknown. */
@@ -134,18 +131,21 @@ export function resolveSource(raw: unknown): BlockSource {
 export function buildSettings(raw: RawSettings): Settings {
   return {
     notifyEmail:
-      typeof raw.notifyEmail === "string" ? raw.notifyEmail.trim().slice(0, EMAIL_MAX) : "",
-    requireCaptcha: toBoolean(raw.requireCaptcha, SETTING_DEFAULTS.requireCaptcha === true),
-    showStars: toBoolean(raw.showStars, SETTING_DEFAULTS.showStars === true),
-    showAvatars: toBoolean(raw.showAvatars, SETTING_DEFAULTS.showAvatars === true),
-    showDate: toBoolean(raw.showDate, SETTING_DEFAULTS.showDate === true),
-    defaultLayout: resolveLayout(raw.defaultLayout),
-    columns: resolveColumns(raw.columns),
-    minRatingToDisplay: (MIN_RATINGS as readonly string[]).includes(String(raw.minRatingToDisplay))
+      typeof raw.notifyEmail === "string"
+        ? raw.notifyEmail.trim().slice(0, EMAIL_MAX)
+        : "",
+    requireCaptcha: toBoolean(
+      raw.requireCaptcha,
+      SETTING_DEFAULTS.requireCaptcha === true,
+    ),
+    minRatingToDisplay: (MIN_RATINGS as readonly string[]).includes(
+      String(raw.minRatingToDisplay),
+    )
       ? Number(String(raw.minRatingToDisplay))
       : 0,
     collectionUrl:
-      typeof raw.collectionUrl === "string" && COLLECTION_URL_RE.test(raw.collectionUrl.trim())
+      typeof raw.collectionUrl === "string" &&
+      COLLECTION_URL_RE.test(raw.collectionUrl.trim())
         ? raw.collectionUrl.trim().slice(0, URL_MAX)
         : "",
   };
@@ -175,7 +175,11 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
  */
 export function validateSettingsUpdate(body: unknown): SettingsValidation {
   if (!body || typeof body !== "object" || Array.isArray(body)) {
-    return { ok: false, field: "", message: "Expected a JSON object of settings." };
+    return {
+      ok: false,
+      field: "",
+      message: "Expected a JSON object of settings.",
+    };
   }
 
   const submitted = body as Record<string, unknown>;
@@ -192,23 +196,22 @@ export function validateSettingsUpdate(body: unknown): SettingsValidation {
         return { ok: false, field: key, message: "Expected text." };
       }
       const email = raw.trim();
-      if (email.length > EMAIL_MAX || (email.length > 0 && !EMAIL_RE.test(email))) {
+      if (
+        email.length > EMAIL_MAX ||
+        (email.length > 0 && !EMAIL_RE.test(email))
+      ) {
         return {
           ok: false,
           field: key,
-          message: "Enter a valid email address, or leave it empty for no email.",
+          message:
+            "Enter a valid email address, or leave it empty for no email.",
         };
       }
       values[key] = email;
       continue;
     }
 
-    if (
-      key === "requireCaptcha" ||
-      key === "showStars" ||
-      key === "showAvatars" ||
-      key === "showDate"
-    ) {
+    if (key === "requireCaptcha") {
       if (typeof raw !== "boolean") {
         return { ok: false, field: key, message: "Choose on or off." };
       }
@@ -216,26 +219,14 @@ export function validateSettingsUpdate(body: unknown): SettingsValidation {
       continue;
     }
 
-    if (key === "defaultLayout") {
-      if (typeof raw !== "string" || !(LAYOUTS as readonly string[]).includes(raw)) {
-        return { ok: false, field: key, message: "Choose grid, slider, or feature." };
-      }
-      values[key] = raw as Layout;
-      continue;
-    }
-
-    if (key === "columns") {
-      if (typeof raw !== "string" || !(COLUMNS as readonly string[]).includes(raw)) {
-        return { ok: false, field: key, message: "Choose two, three, or four columns." };
-      }
-      values[key] = raw as ColumnCount;
-      continue;
-    }
-
     if (key === "minRatingToDisplay") {
       const value = toIntIn(raw, 0, 5, Number.NaN);
       if (!Number.isFinite(value)) {
-        return { ok: false, field: key, message: "Choose a minimum between 0 and 5." };
+        return {
+          ok: false,
+          field: key,
+          message: "Choose a minimum between 0 and 5.",
+        };
       }
       values[key] = value;
       continue;
@@ -243,14 +234,22 @@ export function validateSettingsUpdate(body: unknown): SettingsValidation {
 
     if (key === "collectionUrl") {
       if (typeof raw !== "string") {
-        return { ok: false, field: key, message: "Expected the address of the reviews page." };
-      }
-      const url = raw.trim();
-      if (url.length > URL_MAX || (url.length > 0 && !COLLECTION_URL_RE.test(url))) {
         return {
           ok: false,
           field: key,
-          message: "Enter the page address on this site (for example /reviews), or leave it empty.",
+          message: "Expected the address of the reviews page.",
+        };
+      }
+      const url = raw.trim();
+      if (
+        url.length > URL_MAX ||
+        (url.length > 0 && !COLLECTION_URL_RE.test(url))
+      ) {
+        return {
+          ok: false,
+          field: key,
+          message:
+            "Enter the page address on this site (for example /reviews), or leave it empty.",
         };
       }
       values[key] = url;

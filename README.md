@@ -1,10 +1,8 @@
 # Brayne Testimonials
 
-![Brayne Testimonials](preview.png)
-
-A moderated review form and testimonial blocks for JustFlows sites: a grid, a
-slider, or one feature quote, with optional star ratings, avatars, and an
-honest activity strip.
+Collect customer reviews through a moderated form and show them as testimonial
+blocks on JustFlows pages: a grid, a slider, or one feature quote, with
+optional star ratings, avatars, and an honest activity strip.
 
 Built against JustFlows `>=0.4.0 <0.5.0` with `@justflows/sdk` v0.1.9.
 
@@ -70,13 +68,15 @@ sends them, so a page save stores none of it; the builder instead shows
 | ------------------- | ---------- | ---------------------------------------------------------------------------------------------- |
 | Notification email  | _(empty)_  | Where new submissions are announced. Empty sends no email. A send failure is logged, never surfaced to the visitor as a failed review. |
 | Require CAPTCHA     | on         | Uses the site's own configured provider. With none configured, submissions rely on moderation.  |
-| Show star ratings   | on         | Unrated reviews render without stars.                                                           |
-| Show avatars        | on         | The reviewer's uploaded image, or a colour chip with their initials.                            |
-| Show review date    | off        | Displays when the review was approved.                                                          |
-| Default layout      | grid       | The layout a new Testimonials block starts with.                                                |
-| Grid columns        | three      | Columns used by the grid layout.                                                                |
 | Minimum star rating | no minimum | When set, unrated and lower-rated reviews are hidden from the site but stay visible in the inbox.|
 | Reviews page address| _(empty)_  | The page that holds the Review form block, so the admin can copy a shareable link.              |
+
+The plugin's settings screen also offers **Apply layout**: pick Grid, Slider,
+or Feature quote and the app edits every placed Testimonials block through
+the content API and publishes the pages it touched — one click changes the
+site, and because the choice is written onto the blocks themselves, the page
+builder's inspector stays truthful. Stars, avatars, dates, columns, style,
+and per-block layout remain per-block choices in the page builder.
 
 ## How it is wired
 

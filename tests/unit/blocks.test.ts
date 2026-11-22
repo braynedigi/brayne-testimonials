@@ -35,8 +35,8 @@ describe("blocks", () => {
 
     expect(validated["records"]).toHaveLength(SAMPLE_RECORDS.length);
     const html = block.render(validated);
-    expect(html).toContain("Abena Owusu");
-    expect(html).toContain("Sunshade Fabrics");
+    expect(html).toContain("Maria Santos");
+    expect(html).toContain("Sample Bakery");
     expect(html).not.toContain("jbt-empty");
   });
 

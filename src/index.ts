@@ -1,4 +1,8 @@
-import type { PluginContext, PluginHttpRequest, PluginModule } from "@justflows/sdk";
+import type {
+  PluginContext,
+  PluginHttpRequest,
+  PluginModule,
+} from "@justflows/sdk";
 import {
   API_NAMESPACE,
   PLUGIN_ID,
@@ -30,7 +34,13 @@ import { testimonialPatterns } from "./patterns.js";
 const COLLECTION = "records";
 
 /** Every moderation action the inbox offers. */
-const MODERATION_ACTIONS = ["approve", "unapprove", "feature", "unfeature", "delete"] as const;
+const MODERATION_ACTIONS = [
+  "approve",
+  "unapprove",
+  "feature",
+  "unfeature",
+  "delete",
+] as const;
 
 /** Raw `settingsSchema` values as the routes read them. */
 type RawSettings = Record<string, unknown>;
@@ -47,7 +57,9 @@ function requireAdministrator(req: PluginHttpRequest) {
 
 /** Read every settings key in one pass, then apply defaults. */
 async function readSettings(ctx: PluginContext) {
-  const values = await Promise.all(SETTING_KEYS.map((key) => ctx.settings.get(key)));
+  const values = await Promise.all(
+    SETTING_KEYS.map((key) => ctx.settings.get(key)),
+  );
   const raw: RawSettings = {};
   SETTING_KEYS.forEach((key, index) => {
     raw[key] = values[index];
@@ -60,7 +72,10 @@ async function readRecords(ctx: PluginContext): Promise<TestimonialRecord[]> {
   const rows = await ctx.data.list<RawRecord>(COLLECTION);
   return rows
     .map((row) => buildRecord({ ...row.data, id: row.id }))
-    .sort((a, b) => Date.parse(b.submittedAt || "0") - Date.parse(a.submittedAt || "0"));
+    .sort(
+      (a, b) =>
+        Date.parse(b.submittedAt || "0") - Date.parse(a.submittedAt || "0"),
+    );
 }
 
 /**
@@ -69,7 +84,10 @@ async function readRecords(ctx: PluginContext): Promise<TestimonialRecord[]> {
  * site has a CAPTCHA provider the form can use.
  */
 async function adminPayload(ctx: PluginContext) {
-  const [settings, records] = await Promise.all([readSettings(ctx), readRecords(ctx)]);
+  const [settings, records] = await Promise.all([
+    readSettings(ctx),
+    readRecords(ctx),
+  ]);
   let captcha: { provider: string | null } = { provider: null };
   try {
     /** Older hosts may not expose the CAPTCHA api; that reads as "none". */
@@ -79,13 +97,18 @@ async function adminPayload(ctx: PluginContext) {
     /** An unavailable CAPTCHA api reads as "no provider": moderation holds. */
   }
   return {
-    body: { settings, records, stats: buildStats(records, new Date()), captcha },
+    body: {
+      settings,
+      records,
+      stats: buildStats(records, new Date()),
+      captcha,
+    },
     headers: { "Cache-Control": "no-store" },
   };
 }
 
 /**
- * `GET /api/brayne-testimonials/admin-data` â€” the admin app's inbox in one
+ * `GET /api/brayne-testimonials/admin-data` — the admin app's inbox in one
  * request. Administrator-only, like the WhatsApp Connect admin routes.
  */
 async function handleAdminData(ctx: PluginContext, req: PluginHttpRequest) {
@@ -95,7 +118,7 @@ async function handleAdminData(ctx: PluginContext, req: PluginHttpRequest) {
 }
 
 /**
- * `PUT /api/brayne-testimonials/admin-settings` â€” the admin app's settings
+ * `PUT /api/brayne-testimonials/admin-settings` — the admin app's settings
  * save. Validates every value, writes only the sent keys, and answers with
  * the fresh payload so the screen re-renders from one source.
  */
@@ -104,7 +127,10 @@ async function handleAdminSettings(ctx: PluginContext, req: PluginHttpRequest) {
   if (denied) return denied;
   const checked = validateSettingsUpdate(req.body);
   if (!checked.ok) {
-    return { status: 400, body: { error: checked.message, field: checked.field } };
+    return {
+      status: 400,
+      body: { error: checked.message, field: checked.field },
+    };
   }
   for (const [key, value] of Object.entries(checked.values)) {
     await ctx.settings.set(key, value);
@@ -115,7 +141,7 @@ async function handleAdminSettings(ctx: PluginContext, req: PluginHttpRequest) {
 }
 
 /**
- * `PUT /api/brayne-testimonials/record` â€” the admin app's editor save.
+ * `PUT /api/brayne-testimonials/record` — the admin app's editor save.
  * Creates or updates one record. Approval is stamped when a record first
  * becomes approved, and cleared again if it returns to pending, so the
  * "published this month" count and the date display stay truthful.
@@ -125,12 +151,18 @@ async function handleRecordSave(ctx: PluginContext, req: PluginHttpRequest) {
   if (denied) return denied;
   const checked = validateRecord(req.body);
   if (!checked.ok) {
-    return { status: 400, body: { error: checked.message, field: checked.field } };
+    return {
+      status: 400,
+      body: { error: checked.message, field: checked.field },
+    };
   }
   if (checked.values.consent === false) {
     return {
       status: 400,
-      body: { error: "Confirm the customer allowed publishing.", field: "consent" },
+      body: {
+        error: "Confirm the customer allowed publishing.",
+        field: "consent",
+      },
     };
   }
 
@@ -144,30 +176,45 @@ async function handleRecordSave(ctx: PluginContext, req: PluginHttpRequest) {
 
   const next: RawRecord = {
     id,
-    quote: typeof checked.values.quote === "string" ? checked.values.quote : current.quote,
+    quote:
+      typeof checked.values.quote === "string"
+        ? checked.values.quote
+        : current.quote,
     personName:
       typeof checked.values.personName === "string"
         ? checked.values.personName
         : current.personName,
-    role: typeof checked.values.role === "string" ? checked.values.role : current.role,
+    role:
+      typeof checked.values.role === "string"
+        ? checked.values.role
+        : current.role,
     rating: "rating" in checked.values ? checked.values.rating : current.rating,
     avatarUrl:
-      typeof checked.values.avatarUrl === "string" ? checked.values.avatarUrl : current.avatarUrl,
+      typeof checked.values.avatarUrl === "string"
+        ? checked.values.avatarUrl
+        : current.avatarUrl,
     featuredAt:
       typeof checked.values.featuredAt === "string"
         ? checked.values.featuredAt
         : current.featuredAt,
-    status: typeof checked.values.status === "string" ? checked.values.status : current.status,
+    status:
+      typeof checked.values.status === "string"
+        ? checked.values.status
+        : current.status,
     consent: checked.values.consent === true ? true : current.consent,
     submittedAt: current.submittedAt || now.toISOString(),
     approvedAt:
       typeof checked.values.approvedAt === "string"
         ? checked.values.approvedAt
         : current.approvedAt,
-    source: typeof checked.values.source === "string" ? checked.values.source : current.source,
+    source:
+      typeof checked.values.source === "string"
+        ? checked.values.source
+        : current.source,
   };
 
-  if (next.status === "approved" && !next.approvedAt) next.approvedAt = now.toISOString();
+  if (next.status === "approved" && !next.approvedAt)
+    next.approvedAt = now.toISOString();
   if (next.status === "pending") next.approvedAt = "";
 
   await ctx.data.put(COLLECTION, id, next);
@@ -176,7 +223,7 @@ async function handleRecordSave(ctx: PluginContext, req: PluginHttpRequest) {
 }
 
 /**
- * `POST /api/brayne-testimonials/moderate` â€” the inbox's one-click actions.
+ * `POST /api/brayne-testimonials/moderate` — the inbox's one-click actions.
  * Approving stamps the approval time; featuring pins with the current
  * moment, so the newest pin always sorts first, exactly as agreed.
  */
@@ -190,7 +237,10 @@ async function handleModerate(ctx: PluginContext, req: PluginHttpRequest) {
   const id = typeof body["id"] === "string" ? body["id"] : "";
   const action = typeof body["action"] === "string" ? body["action"] : "";
   if (!id || !(MODERATION_ACTIONS as readonly string[]).includes(action)) {
-    return { status: 400, body: { error: "Expected a record id and a known action." } };
+    return {
+      status: 400,
+      body: { error: "Expected a record id and a known action." },
+    };
   }
 
   const existing = await ctx.data.get<RawRecord>(COLLECTION, id);
@@ -221,7 +271,7 @@ async function handleModerate(ctx: PluginContext, req: PluginHttpRequest) {
 }
 
 /**
- * `GET /api/brayne-testimonials/form-config` â€” what the review form needs to
+ * `GET /api/brayne-testimonials/form-config` — what the review form needs to
  * arm the site's own CAPTCHA: the provider's public widget details, or null
  * when the site has none configured. `no-store` and CORS-enabled so a
  * statically exported page can read it, like the WhatsApp widget's config.
@@ -253,7 +303,7 @@ async function handleFormConfig(ctx: PluginContext) {
 }
 
 /**
- * `POST /api/brayne-testimonials/submit` â€” the public review form.
+ * `POST /api/brayne-testimonials/submit` — the public review form.
  *
  * `csrf: false` because the caller is an anonymous visitor with no session
  * token to present; in exchange the route refuses any request whose `Origin`
@@ -263,7 +313,11 @@ async function handleFormConfig(ctx: PluginContext) {
  */
 async function handleSubmit(ctx: PluginContext, req: PluginHttpRequest) {
   if (req.trustedOrigin === false) {
-    return { status: 403, body: { error: "Cross-origin request refused" }, cors: true };
+    return {
+      status: 403,
+      body: { error: "Cross-origin request refused" },
+      cors: true,
+    };
   }
 
   const settings = await readSettings(ctx);
@@ -274,9 +328,14 @@ async function handleSubmit(ctx: PluginContext, req: PluginHttpRequest) {
         req.body && typeof req.body === "object" && !Array.isArray(req.body)
           ? (req.body as Record<string, unknown>)
           : {};
-      const token = typeof body["captchaToken"] === "string" ? body["captchaToken"] : "";
+      const token =
+        typeof body["captchaToken"] === "string" ? body["captchaToken"] : "";
       if (!token) {
-        return { status: 400, body: { error: "Complete the CAPTCHA first." }, cors: true };
+        return {
+          status: 400,
+          body: { error: "Complete the CAPTCHA first." },
+          cors: true,
+        };
       }
       const verified = await ctx.captcha.verify(token).catch(() => false);
       if (!verified) {
@@ -291,14 +350,21 @@ async function handleSubmit(ctx: PluginContext, req: PluginHttpRequest) {
 
   const checked = validateSubmission(req.body);
   if (!checked.ok) {
-    return { status: 400, body: { error: checked.message, field: checked.field }, cors: true };
+    return {
+      status: 400,
+      body: { error: checked.message, field: checked.field },
+      cors: true,
+    };
   }
 
   const now = new Date();
   const record: RawRecord = {
     id: makeRecordId(now),
     quote: typeof checked.values.quote === "string" ? checked.values.quote : "",
-    personName: typeof checked.values.personName === "string" ? checked.values.personName : "",
+    personName:
+      typeof checked.values.personName === "string"
+        ? checked.values.personName
+        : "",
     role: typeof checked.values.role === "string" ? checked.values.role : "",
     rating: "rating" in checked.values ? checked.values.rating : null,
     avatarUrl: "",
@@ -334,7 +400,7 @@ async function handleSubmit(ctx: PluginContext, req: PluginHttpRequest) {
  * The `content.blocks` pass: immediately before a page renders, hydrate this
  * plugin's blocks with live data. One settings read and one records read
  * serve every block on the page, and any failure leaves the stored tree
- * untouched â€” a data problem renders an empty block, never a broken page.
+ * untouched — a data problem renders an empty block, never a broken page.
  */
 function hydrateBlocks(ctx: PluginContext) {
   return async (blocks: unknown): Promise<unknown> => {
@@ -353,7 +419,9 @@ function hydrateBlocks(ctx: PluginContext) {
         readSettings(ctx),
         ctx.data.list<RawRecord>(COLLECTION),
       ]);
-      const records = rows.map((row) => buildRecord({ ...row.data, id: row.id }));
+      const records = rows.map((row) =>
+        buildRecord({ ...row.data, id: row.id }),
+      );
       ctx.logger.info("Testimonials hydration data read", {
         recordCount: records.length,
         approvedCount: records.filter((r) => r.status === "approved").length,
@@ -398,7 +466,11 @@ function collect(value: unknown, found: BlockNode[]): BlockNode[] {
     if (!entry || typeof entry !== "object") continue;
     const node = entry as BlockNode;
     if (node.type === TESTIMONIALS_BLOCK || node.type === STRIP_BLOCK) {
-      if (!node.props || typeof node.props !== "object" || Array.isArray(node.props)) {
+      if (
+        !node.props ||
+        typeof node.props !== "object" ||
+        Array.isArray(node.props)
+      ) {
         node.props = {};
       }
       found.push(node);
@@ -464,7 +536,8 @@ const brayneTestimonials: PluginModule = {
       notifyEmail: {
         type: "string",
         label: "Notification email",
-        description: "Where new submissions are announced. Empty sends no email.",
+        description:
+          "Where new submissions are announced. Empty sends no email.",
         default: "",
       },
       requireCaptcha: {
@@ -473,46 +546,6 @@ const brayneTestimonials: PluginModule = {
         description:
           "Uses the site's own configured CAPTCHA provider (Turnstile, hCaptcha, or reCAPTCHA). With no provider configured, submissions rely on moderation.",
         default: true,
-      },
-      showStars: {
-        type: "boolean",
-        label: "Show star ratings",
-        description: "Unrated reviews render without stars.",
-        default: true,
-      },
-      showAvatars: {
-        type: "boolean",
-        label: "Show avatars",
-        description: "The reviewer's uploaded image, or a colour chip with their initials.",
-        default: true,
-      },
-      showDate: {
-        type: "boolean",
-        label: "Show review date",
-        description: "Displays when the review was approved.",
-        default: false,
-      },
-      defaultLayout: {
-        type: "select",
-        label: "Default layout",
-        description: "The layout a new Testimonials block starts with.",
-        default: "grid",
-        options: [
-          { value: "grid", label: "Grid" },
-          { value: "slider", label: "Slider" },
-          { value: "feature", label: "Feature quote" },
-        ],
-      },
-      columns: {
-        type: "select",
-        label: "Grid columns",
-        description: "Columns used by the grid layout.",
-        default: "3",
-        options: [
-          { value: "2", label: "Two" },
-          { value: "3", label: "Three" },
-          { value: "4", label: "Four" },
-        ],
       },
       minRatingToDisplay: {
         type: "select",
@@ -540,8 +573,14 @@ const brayneTestimonials: PluginModule = {
     assets: {
       dir: "public",
       blocks: {
-        [TESTIMONIALS_BLOCK]: { scripts: ["testimonials.js"], styles: ["testimonials.css"] },
-        [REVIEW_FORM_BLOCK]: { scripts: ["review-form.js"], styles: ["review-form.css"] },
+        [TESTIMONIALS_BLOCK]: {
+          scripts: ["testimonials.js"],
+          styles: ["testimonials.css"],
+        },
+        [REVIEW_FORM_BLOCK]: {
+          scripts: ["review-form.js"],
+          styles: ["review-form.css"],
+        },
         [STRIP_BLOCK]: { styles: ["testimonials.css"] },
       },
     },
@@ -560,6 +599,11 @@ const brayneTestimonials: PluginModule = {
       rateLimit: { limit: 30, windowMs: 60_000, key: "submit" },
     });
 
+    /**
+     * Layout and columns live with each placed block, chosen in the page
+     * builder; the definition's static defaults are what a new insert starts
+     * from. No settings read happens here, so activation cannot fail on one.
+     */
     ctx.blocks.register(testimonialsBlock());
     ctx.blocks.register(reviewFormBlock());
     ctx.blocks.register(testimonialStripBlock());

@@ -485,6 +485,14 @@ body {
   color: var(--jbt-text-3);
 }
 
+/** The pointer line under a settings group: where a choice really lives. */
+.jbt-hint {
+  margin: 4px 0 12px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--jbt-text-3);
+}
+
 .jbt-field__error {
   margin: 0;
   font-size: 12.5px;

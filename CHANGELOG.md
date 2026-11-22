@@ -9,11 +9,35 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 
+- **"Apply layout" on the plugin's Display settings screen.** Pick Grid,
+  Slider, or Feature quote and the admin app edits every placed Testimonials
+  block through the content API — walking each page, updating the reviews
+  nodes, and publishing the pages it touched — so one click changes the site
+  and the page builder's inspector stays truthful, because the choice is
+  written onto the blocks themselves.
+
+### Changed
+
+- **Removed the "Default layout", "Grid columns", "Show star ratings", "Show
+  avatars", and "Show review date" settings.** A block's layout, columns, and
+  display toggles live with the block itself, chosen in the page builder's
+  inspector, and the settings beside them promised something placed blocks
+  never followed — the stars, avatars, and dates toggles were never read by
+  the renderer at all. The settings screen now says where those choices live,
+  and offers the Apply-layout action for the one switch owners kept reaching
+  for. An old client still sending those keys has them ignored, never
+  honoured.
+
+### Added
+
 - `tests/unit/blocks.test.ts` pins the render-time prop contract: the block
   registry renders `def.render(validateProps(storedProps))`, so the visible
   reviews and the strip's stats that the `content.blocks` pass injects must
   survive `validateProps` to reach the HTML, while a builder save (which never
   carries injected data) stores none of it.
+- The slider answers the mouse wheel: a wheel over the track moves the cards
+  and hands the scroll back to the page at either end, so the page never
+  feels trapped.
 
 ### Fixed
 

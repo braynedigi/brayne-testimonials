@@ -1,20 +1,32 @@
-/* SPDX-License-Identifier: GPL-2.0-or-later
+﻿/* SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Brayne Testimonials - collection form styles. The form renders inside the
  * site's theme; surfaces adapt through color-scheme and the plugin's accents.
+ * The token block mirrors the display stylesheet so a form-only page looks
+ * the same as a page with both.
  */
 
 :root {
   --jbt-field-bg: rgba(15, 23, 42, 0.03);
   --jbt-field-border: rgba(15, 23, 42, 0.18);
-  --jbt-text-muted: rgba(15, 23, 42, 0.62);
+  --jbt-text-muted: #5b6570;
+  --jbt-star: #c27803;
+  --jbt-star-empty: #8a94a0;
+  --jbt-card-bg: #ffffff;
+  --jbt-card-border: #e4e8ec;
+  --jbt-radius: 12px;
+  --jbt-success: #34d399;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --jbt-field-bg: rgba(255, 255, 255, 0.05);
     --jbt-field-border: rgba(255, 255, 255, 0.22);
-    --jbt-text-muted: rgba(232, 236, 245, 0.62);
+    --jbt-text-muted: #9aa5b1;
+    --jbt-star: #f5b451;
+    --jbt-star-empty: #6b7480;
+    --jbt-card-bg: #161b22;
+    --jbt-card-border: #2b323b;
   }
 }
 
@@ -23,17 +35,10 @@
   margin: 0 auto;
   display: grid;
   gap: 16px;
-  padding: 24px;
-  border: 1px solid rgba(15, 23, 42, 0.1);
-  border-radius: 16px;
-  background: rgba(15, 23, 42, 0.02);
-}
-
-@media (prefers-color-scheme: dark) {
-  .jbt-form {
-    border-color: rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.03);
-  }
+  padding: 28px;
+  border: 1px solid var(--jbt-card-border);
+  border-radius: var(--jbt-radius);
+  background: var(--jbt-card-bg);
 }
 
 .jbt-form__title {
@@ -88,7 +93,7 @@
   cursor: pointer;
   font-size: 26px;
   line-height: 1;
-  color: rgba(15, 23, 42, 0.22);
+  color: var(--jbt-star-empty);
   transition:
     color 120ms ease,
     transform 120ms ease;
@@ -97,18 +102,12 @@
 .jbt-star-button:hover,
 .jbt-star-button:focus-visible,
 .jbt-star-button--on {
-  color: var(--jbt-gold, #f0a830);
+  color: var(--jbt-star);
 }
 
 .jbt-star-button:focus-visible {
   outline: none;
   transform: scale(1.12);
-}
-
-@media (prefers-color-scheme: dark) {
-  .jbt-star-button {
-    color: rgba(255, 255, 255, 0.24);
-  }
 }
 
 .jbt-field {
@@ -133,7 +132,7 @@
 
 .jbt-field__input:focus-visible {
   outline: none;
-  border-color: var(--jbt-gold, #f0a830);
+  border-color: var(--jbt-star);
   box-shadow: 0 0 0 3px rgba(240, 168, 48, 0.2);
 }
 
@@ -154,7 +153,7 @@ textarea.jbt-field__input {
   margin-top: 2px;
   width: 16px;
   height: 16px;
-  accent-color: var(--jbt-gold, #f0a830);
+  accent-color: var(--jbt-star);
   flex: none;
 }
 
@@ -171,7 +170,7 @@ textarea.jbt-field__input {
   border-radius: 999px;
   border: none;
   cursor: pointer;
-  background: var(--jbt-gold, #f0a830);
+  background: var(--jbt-star);
   color: #241500;
 }
 

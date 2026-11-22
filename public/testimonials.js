@@ -31,7 +31,10 @@
       dot.type = "button";
       dot.className = "jbt-dot";
       dot.setAttribute("role", "tab");
-      dot.setAttribute("aria-label", "Review " + (index + 1) + " of " + cards.length);
+      dot.setAttribute(
+        "aria-label",
+        "Review " + (index + 1) + " of " + cards.length,
+      );
       dot.setAttribute("aria-selected", String(index === 0));
       dot.addEventListener("click", function () {
         scrollTo(index);
@@ -44,7 +47,10 @@
     /** Bring one card into view and let the observer mark the dot. */
     function scrollTo(index) {
       var clamped = Math.max(0, Math.min(cards.length - 1, index));
-      track.scrollTo({ left: cards[clamped].offsetLeft - track.offsetLeft, behavior: "smooth" });
+      track.scrollTo({
+        left: cards[clamped].offsetLeft - track.offsetLeft,
+        behavior: "smooth",
+      });
     }
 
     prev.addEventListener("click", function () {
@@ -53,6 +59,38 @@
     next.addEventListener("click", function () {
       scrollTo(current() + 1);
     });
+
+    /**
+     * A mouse wheel over the track moves the cards instead of the page, and
+     * hands the scroll straight back at either end so the page never feels
+     * trapped. Each tick lands on a card, because the track's mandatory snap
+     * would pull a raw pixel scroll straight back. Touch swipes scroll the
+     * track natively already.
+     */
+    track.addEventListener(
+      "wheel",
+      function (event) {
+        if (track.scrollWidth <= track.clientWidth) return;
+        var delta =
+          Math.abs(event.deltaY) > Math.abs(event.deltaX)
+            ? event.deltaY
+            : event.deltaX;
+        var atStart = track.scrollLeft <= 0;
+        var atEnd =
+          track.scrollLeft + track.clientWidth >= track.scrollWidth - 1;
+        if ((delta < 0 && atStart) || (delta > 0 && atEnd)) return;
+        event.preventDefault();
+        var target = Math.max(
+          0,
+          Math.min(cards.length - 1, current() + (delta > 0 ? 1 : -1)),
+        );
+        track.scrollTo({
+          left: cards[target].offsetLeft - track.offsetLeft,
+          behavior: "auto",
+        });
+      },
+      { passive: false },
+    );
 
     /** The card whose left edge is nearest the track's start. */
     function current() {
@@ -87,7 +125,8 @@
   function makeArrow(glyph, label, className) {
     var arrow = document.createElement("button");
     arrow.type = "button";
-    arrow.className = className;
+    /** The base class carries the round, absolutely-positioned look. */
+    arrow.className = "jbt-arrow " + className;
     arrow.setAttribute("aria-label", label);
     arrow.textContent = glyph;
     return arrow;
