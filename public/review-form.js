@@ -46,7 +46,9 @@
     if (config.provider === "turnstile") {
       loadProviderScript(config.scriptSrc, function () {
         if (window.turnstile) {
-          captcha.widgetId = window.turnstile.render(slot, { sitekey: config.siteKey });
+          captcha.widgetId = window.turnstile.render(slot, {
+            sitekey: config.siteKey,
+          });
         }
       });
       return;
@@ -55,7 +57,9 @@
     if (config.provider === "hcaptcha") {
       loadProviderScript(config.scriptSrc, function () {
         if (window.hcaptcha) {
-          captcha.widgetId = window.hcaptcha.render(slot, { sitekey: config.siteKey });
+          captcha.widgetId = window.hcaptcha.render(slot, {
+            sitekey: config.siteKey,
+          });
         }
       });
       return;
@@ -64,7 +68,9 @@
     if (config.provider === "recaptcha") {
       loadProviderScript(config.scriptSrc, function () {
         if (window.grecaptcha) {
-          captcha.widgetId = window.grecaptcha.render(slot, { sitekey: config.siteKey });
+          captcha.widgetId = window.grecaptcha.render(slot, {
+            sitekey: config.siteKey,
+          });
         }
       });
       return;
@@ -78,13 +84,25 @@
 
   /** The provider's token for this submission, or an empty string. */
   function captchaToken() {
-    if (captcha.provider === "turnstile" && window.turnstile && captcha.widgetId !== null) {
+    if (
+      captcha.provider === "turnstile" &&
+      window.turnstile &&
+      captcha.widgetId !== null
+    ) {
       return window.turnstile.getResponse(captcha.widgetId) || "";
     }
-    if (captcha.provider === "hcaptcha" && window.hcaptcha && captcha.widgetId !== null) {
+    if (
+      captcha.provider === "hcaptcha" &&
+      window.hcaptcha &&
+      captcha.widgetId !== null
+    ) {
       return window.hcaptcha.getResponse(captcha.widgetId) || "";
     }
-    if (captcha.provider === "recaptcha" && window.grecaptcha && captcha.widgetId !== null) {
+    if (
+      captcha.provider === "recaptcha" &&
+      window.grecaptcha &&
+      captcha.widgetId !== null
+    ) {
       return window.grecaptcha.getResponse(captcha.widgetId) || "";
     }
     return "";
@@ -92,7 +110,11 @@
 
   /** A promise for an invisible reCAPTCHA v3 token, or an empty string. */
   function captchaTokenAsync() {
-    if (captcha.provider === "recaptcha-v3" && window.grecaptcha && captcha.siteKey) {
+    if (
+      captcha.provider === "recaptcha-v3" &&
+      window.grecaptcha &&
+      captcha.siteKey
+    ) {
       return window.grecaptcha
         .execute(captcha.siteKey, { action: "review" })
         .then(function (token) {
@@ -115,14 +137,19 @@
     row.setAttribute("role", "radiogroup");
     row.setAttribute("aria-label", "Star rating");
 
-    var radios = Array.prototype.slice.call(form.querySelectorAll(".jbt-star-input"));
+    var radios = Array.prototype.slice.call(
+      form.querySelectorAll(".jbt-star-input"),
+    );
     radios.forEach(function (radio) {
       var value = Number(radio.value);
       var button = document.createElement("button");
       button.type = "button";
       button.className = "jbt-star-button";
       button.textContent = "\u2605";
-      button.setAttribute("aria-label", value + (value === 1 ? " star" : " stars"));
+      button.setAttribute(
+        "aria-label",
+        value + (value === 1 ? " star" : " stars"),
+      );
       button.addEventListener("click", function () {
         radios.forEach(function (other) {
           other.checked = other === radio;
@@ -165,7 +192,8 @@
     var line = form.querySelector(".jbt-form__status");
     if (!line) return;
     line.textContent = text;
-    line.className = "jbt-form__status" + (kind ? " jbt-form__status--" + kind : "");
+    line.className =
+      "jbt-form__status" + (kind ? " jbt-form__status--" + kind : "");
     if (kind === "error") {
       line.setAttribute("role", "alert");
     } else {
@@ -180,7 +208,8 @@
     var heading = document.createElement("h4");
     heading.textContent = "Thanks \u2014 your review is awaiting approval.";
     var note = document.createElement("p");
-    note.textContent = "The site owner reads every review before it appears here.";
+    note.textContent =
+      "The site owner reads every review before it appears here.";
     success.appendChild(heading);
     success.appendChild(note);
     form.replaceWith(success);
@@ -190,12 +219,49 @@
   function enhance(form) {
     upgradeStars(form);
 
+    /**
+     * Prefill from the invitation link: `?name=` and `?role=` fill the
+     * matching fields, so an invited customer arrives with their name
+     * written. The values are plain text; assigning them is markup-safe.
+     */
+    var query = new URLSearchParams(window.location.search);
+    var nameParam = query.get("name");
+    var roleParam = query.get("role");
+    if (nameParam) {
+      var nameField = form.querySelector('input[name="personName"]');
+      if (nameField) nameField.value = String(nameParam).slice(0, 60);
+    }
+    if (roleParam) {
+      var roleField = form.querySelector('input[name="role"]');
+      if (roleField) roleField.value = String(roleParam).slice(0, 80);
+    }
+
+    /**
+     * Stamp the moment the form came alive, for the submit route's
+     * faster-than-a-human check. Set at the first interaction instead, so a
+     * form left open in a tab for an hour never trips the gate.
+     */
+    var startField = form.querySelector('input[name="jbt-start"]');
+    if (startField) {
+      var started = "0";
+      var begin = function () {
+        if (started === "0") started = String(Date.now());
+      };
+      form.addEventListener("focusin", begin, { passive: true });
+      form.addEventListener("submit", function () {
+        startField.value = started || String(Date.now() - 60000);
+      });
+    }
+
     var slot = form.querySelector('[data-jbt="captcha-slot"]');
     var submit = form.querySelector(".jbt-form__submit");
     var method = form.getAttribute("method") || "post";
     if (method.toLowerCase() !== "post") return;
 
-    fetch("/api/brayne-testimonials/form-config", { credentials: "same-origin", cache: "no-store" })
+    fetch("/api/brayne-testimonials/form-config", {
+      credentials: "same-origin",
+      cache: "no-store",
+    })
       .then(function (response) {
         return response.ok ? response.json() : null;
       })
@@ -255,6 +321,15 @@
           if (rating !== null) payload.rating = rating;
           if (token) payload.captchaToken = token;
 
+          /**
+           * The language of the page the form lives on, so the review can
+           * show on pages of the same language. Read from the rendered
+           * document, bounded like the server's own field, and always
+           * optional: an empty or missing tag means "every page".
+           */
+          var pageLang = document.documentElement.lang || "";
+          if (pageLang) payload.locale = String(pageLang).slice(0, 40);
+
           return fetch("/api/brayne-testimonials/submit", {
             method: "POST",
             credentials: "same-origin",
@@ -274,11 +349,19 @@
             return;
           }
           if (submit) submit.disabled = false;
-          status(form, result.body.error || "Something went wrong. Please try again.", "error");
+          status(
+            form,
+            result.body.error || "Something went wrong. Please try again.",
+            "error",
+          );
         })
         .catch(function () {
           if (submit) submit.disabled = false;
-          status(form, "The review could not be sent. Please try again.", "error");
+          status(
+            form,
+            "The review could not be sent. Please try again.",
+            "error",
+          );
         });
     });
   }

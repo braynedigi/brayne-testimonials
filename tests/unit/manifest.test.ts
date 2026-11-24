@@ -128,10 +128,12 @@ describe("blocks", () => {
       columns: "3",
       limit: 6,
       source: "all",
+      tag: "",
       showStars: false,
       showAvatars: true,
       showRole: true,
       showDate: false,
+      autoplay: false,
       style: "minimal",
       /**
        * A builder save never carries records, so the validated props store an
@@ -203,10 +205,11 @@ describe("patterns", () => {
     }
   });
 
-  it("offers the three designed compositions", () => {
+  it("offers the designed compositions", () => {
     const ids = testimonialPatterns().map((pattern) => pattern.id);
     expect(ids).toEqual([
       "testimonial-wall",
+      "stats-band",
       "hero-with-social-proof",
       "footer-quote",
     ]);
@@ -225,5 +228,21 @@ describe("declared files", () => {
       (rel) => !existsSync(path.join(packageRoot, dir, rel)),
     );
     expect(missing).toEqual([]);
+  });
+
+  it("ships the vendored QR encoder with its MIT license intact", () => {
+    const qr = path.join(packageRoot, "admin", "vendor", "qrcode.min.js");
+    expect(existsSync(qr)).toBe(true);
+    const source = readFileSync(qr, "utf8");
+    expect(source).toContain("MIT license");
+    expect(source).toContain("Kazuhiko Arase");
+    /** The admin page loads it before the app script. */
+    const html = readFileSync(
+      path.join(packageRoot, "admin", "index.html"),
+      "utf8",
+    );
+    expect(html.indexOf('src="vendor/qrcode.min.js"')).toBeLessThan(
+      html.indexOf('src="app.js"'),
+    );
   });
 });

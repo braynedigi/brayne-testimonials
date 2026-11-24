@@ -92,6 +92,39 @@
       { passive: false },
     );
 
+    /**
+     * Autoplay, only when the block asked for it. Never under reduced
+     * motion, never while the pointer rests on the slider, never while a
+     * control has keyboard focus, and never while the tab is hidden. At the
+     * last card it wraps home, so the motion reads as a loop, not a stop.
+     */
+    if (root.getAttribute("data-autoplay") === "true" && cards.length > 1) {
+      var reduced =
+        window.matchMedia &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!reduced) {
+        var playing = true;
+        var pause = function () {
+          playing = false;
+        };
+        var resume = function () {
+          playing = true;
+        };
+        root.addEventListener("mouseenter", pause);
+        root.addEventListener("mouseleave", resume);
+        root.addEventListener("focusin", pause);
+        root.addEventListener("focusout", resume);
+        document.addEventListener("visibilitychange", function () {
+          playing = !document.hidden;
+        });
+        window.setInterval(function () {
+          if (!playing || document.hidden) return;
+          var nextIndex = current() + 1;
+          scrollTo(nextIndex > cards.length - 1 ? 0 : nextIndex);
+        }, 6000);
+      }
+    }
+
     /** The card whose left edge is nearest the track's start. */
     function current() {
       var origin = track.offsetLeft;
@@ -132,9 +165,46 @@
     return arrow;
   }
 
+  /**
+   * Click-to-load video facades. The server renders a plain link; the first
+   * click is what creates the iframe, so no third-party embed ever loads
+   * until a visitor asks for it. The embed address is the one the server's
+   * own allowlist produced (YouTube's privacy-enhanced nocookie domain or
+   * Vimeo's player); this script re-checks it before iframing, and without
+   * scripting the link opens the video on its own site instead.
+   */
+  var VIDEO_EMBED_RE =
+    /^https:\/\/(?:www\.youtube-nocookie\.com\/embed\/[A-Za-z0-9_-]{6,20}|player\.vimeo\.com\/video\/[0-9]{4,12})$/;
+
+  function bindVideoFacades() {
+    var links = document.querySelectorAll("a[data-jbt-video]");
+    Array.prototype.forEach.call(links, function (link) {
+      if (link.getAttribute("data-jbt-loaded") === "1") return;
+      link.setAttribute("data-jbt-loaded", "1");
+      link.addEventListener("click", function (event) {
+        var embed = link.getAttribute("data-jbt-video") || "";
+        /** Anything but the two allowed embeds stays a plain link. */
+        if (!VIDEO_EMBED_RE.test(embed)) return;
+        event.preventDefault();
+        var frame = document.createElement("div");
+        frame.className = "jbt-card__video-frame";
+        var player = document.createElement("iframe");
+        player.src = embed;
+        player.title = "Video review";
+        player.loading = "lazy";
+        player.allow = "autoplay; fullscreen; picture-in-picture";
+        player.allowFullscreen = true;
+        player.referrerPolicy = "strict-origin-when-cross-origin";
+        frame.appendChild(player);
+        link.replaceWith(frame);
+      });
+    });
+  }
+
   function scan() {
     var sliders = document.querySelectorAll('[data-jbt="slider"]');
     Array.prototype.forEach.call(sliders, enhance);
+    bindVideoFacades();
   }
 
   if (document.readyState === "loading") {

@@ -161,6 +161,19 @@ textarea.jbt-field__input {
   min-height: 8px;
 }
 
+/**
+ * The honeypot: present for bots that fill every field, invisible and
+ * unreachable for everyone else. Kept in the layout (not display: none) so
+ * naive "fill the hidden field" scripts still find it.
+ */
+.jbt-honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
 .jbt-form__submit {
   justify-self: start;
   appearance: none;

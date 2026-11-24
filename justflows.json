@@ -4,7 +4,7 @@
   "id": "justflows.brayne-testimonials",
   "apiNamespace": "brayne-testimonials",
   "name": "Brayne Testimonials",
-  "version": "0.1.0",
+  "version": "0.6.0",
   "publisher": "Brayne",
   "license": "GPL-2.0-or-later",
   "engines": {

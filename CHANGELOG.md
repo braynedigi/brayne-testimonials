@@ -5,16 +5,137 @@ All notable changes to **Brayne Testimonials** are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.6.0] - 2026-11-23
+
+The plugin belongs to the site, not just to its pages.
 
 ### Added
 
+- **Language-aware reviews**: a record can carry a BCP 47 language tag
+  (optional, validated, stored canonically). On a localized page, a
+  Testimonials block shows only records of the page's language plus
+  locale-less records; pages without a locale context still show everything.
+  The form records the rendered page's language (`<html lang>`) with each
+  submission, and the CSV export and import carry the tag.
+- **Theming contract, documented**: every `--jbt-*` variable the stylesheet
+  uses is now documented in the README as a theme override point. The
+  host's theme stylesheet loads after the plugin's, so a theme that declares
+  the same names wins the cascade; the builder's per-block Theme styling
+  writes inline custom properties the plugin's styles read directly. A new
+  test pins the README table to the stylesheet so the two cannot drift.
+- **Static export verification**: a real export run confirmed the display
+  blocks render fully into the export, the slider degrades to a native
+  scrollable strip, video reviews stay plain links until clicked, and the
+  form posts to the live origin through its CORS-enabled config route. The
+  README carries the resulting checklist.
+
+## [0.5.0] - 2026-11-23
+
+Reviews with photos, videos, and a way to group them.
+
+### Added
+
+- **Review photos**: the editor accepts an image address from the site's
+  media library and the cards and the feature layout show it. The public
+  form still accepts no uploads (the SDK has no public upload API), so every
+  photo is one the owner attached after moderation — nothing unmoderated can
+  render as an image.
+- **Video reviews**: the editor accepts a YouTube or Vimeo address. The card
+  shows a click-to-load facade — a plain link with a play glyph, and the
+  embed iframe is only ever created by the click, only from the two embed
+  hosts the server's own allowlist produces (YouTube's privacy-enhanced
+  `youtube-nocookie.com` and `player.vimeo.com`). Without scripting, the
+  link opens the video on its own site.
+- **Tags**: each record can carry one short label, and a Testimonials block
+  can show only one tag. Tags ride the CSV export; imports still land plain,
+  because media and tags are owner decisions made in the editor.
+
+## [0.4.0] - 2026-11-23
+
+Ask for reviews, and make leaving one easy.
+
+### Added
+
+- **Review invitations**: a new route and an "Invite a customer" panel on the
+  Collect screen — one personalized email, sent now (the plugin has no
+  scheduler and pretends to none), carrying the reviews-page link with the
+  customer's name pre-filled. Sent invitations are listed with a re-send
+  button, and an email that cannot be sent records nothing.
+- **Prefill links**: the review form fills `?name=` and `?role=` from the
+  invitation link; the values land by plain-text assignment, bounded like
+  the server's own fields.
+- **QR counter card**: the Collect screen draws the reviews-page link as a
+  QR code (vendored MIT encoder, no CDN, license preserved) with a "Download
+  PNG" button for printing.
+- **CSV import**: a paste box on the Collect screen and a new import route —
+  every row travels through the same validation a public submission does and
+  lands **pending**, whatever moderation state the file claims; each failed
+  row is reported without stopping the rest.
+
+### Fixed
+
+- A public submission that omitted the quote or the name (a body with only
+  consent) used to pass validation and store an empty record. The quote and
+  the name are now required, exactly as the form's own fields are.
+
+## [0.3.0] - 2026-11-23
+
+More proof per pixel, from data the plugin already owns.
+
+### Added
+
+- **Ratings breakdown**: the Review activity strip gains a "With rating bars"
+  variant — the average plus a five-to-one star distribution, every bar a
+  count of approved, rated reviews, each width a clamped share of the
+  biggest bar. Unrated reviews are in no bar, and with no ratings there are
+  no bars.
+- **Verified badge**: a per-record "Verified by the site owner" attestation
+  (inbox one-click toggle and editor checkbox), rendered as a small badge on
+  the card and the feature quote. The wording claims exactly what it is —
+  the owner's own word, never a third-party verification.
+- **Autoplay slider**: a per-block toggle; the slider advances every six
+  seconds, wraps at the last card, and never runs under
+  `prefers-reduced-motion`, while the pointer rests on it, while a control
+  has keyboard focus, or while the tab is hidden.
+- **Two patterns**: "Stats band" (the detailed strip on its own) and the
+  reworked "Hero with social proof" (the activity strip above one big
+  feature quote).
+
+## [0.2.0] - 2026-11-23
+
+The moderation inbox becomes the tool the owner lives in.
+
+### Added
+
+- **Owner replies**: the editor gains a reply field, and a stored reply
+  renders under the review on the site as "Response from the owner" —
+  escaped like every other stored string, empty renders nothing.
+- **Internal notes**: a moderator's note travels with a record (and the CSV
+  export) but never renders; a test pins that contract.
+- **Soft delete**: "Trash" moves a review out of every list and off the
+  site; the Trash tab restores it, or deletes it for good. Only "delete
+  forever" removes a row.
+- **Bulk actions**: select rows (or all) and approve, feature, or trash them
+  in one pass; the trash tab bulk-restores or bulk-deletes forever. Every
+  action walks the same per-record route the single buttons use.
+- **CSV export**: `GET /api/brayne-testimonials/export` (administrator-only)
+  answers every record as RFC 4180 CSV, notes included — the owner's data,
+  portable in one click from the inbox header.
+- **Spam gate for CAPTCHA-less sites**: the form carries a hidden honeypot
+  and a quiet start stamp; the submit route drops a filled honeypot or a
+  form "completed" faster than a person could type, answering the same
+  success shape so a bot learns nothing.
 - **"Apply layout" on the plugin's Display settings screen.** Pick Grid,
   Slider, or Feature quote and the admin app edits every placed Testimonials
   block through the content API — walking each page, updating the reviews
   nodes, and publishing the pages it touched — so one click changes the site
   and the page builder's inspector stays truthful, because the choice is
   written onto the blocks themselves.
+- `tests/unit/blocks.test.ts` pins the render-time prop contract: the block
+  registry renders `def.render(validateProps(storedProps))`, so the visible
+  reviews and the strip's stats that the `content.blocks` pass injects must
+  survive `validateProps` to reach the HTML, while a builder save (which never
+  carries injected data) stores none of it.
 
 ### Changed
 
@@ -28,17 +149,6 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   for. An old client still sending those keys has them ignored, never
   honoured.
 
-### Added
-
-- `tests/unit/blocks.test.ts` pins the render-time prop contract: the block
-  registry renders `def.render(validateProps(storedProps))`, so the visible
-  reviews and the strip's stats that the `content.blocks` pass injects must
-  survive `validateProps` to reach the HTML, while a builder save (which never
-  carries injected data) stores none of it.
-- The slider answers the mouse wheel: a wheel over the track moves the cards
-  and hands the scroll back to the page at either end, so the page never
-  feels trapped.
-
 ### Fixed
 
 - The public Testimonials and Review activity blocks rendered their honest
@@ -46,6 +156,10 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   records on the stored tree, but the registry's `validateProps` step dropped
   the injected render-time props before `render` ran. Both blocks now let the
   injected props through, so pages again carry the reviews in their HTML.
+- The slider answers the mouse wheel and keeps its arrows off the cards:
+  round buttons sit in reserved lanes beside the track (the mobile design is
+  a plain swipe strip with dots), and the track's own scrollbar stays out of
+  sight while wheel, arrows, touch, and keyboard scrolling all work.
 
 ## [0.1.0] - 2026-11-20
 

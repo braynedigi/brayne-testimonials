@@ -33,9 +33,11 @@
   --jbt-radius-sm: 8px;
   --jbt-radius: 12px;
   --jbt-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
-  --jbt-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 8px 24px -12px rgba(15, 23, 42, 0.14);
+  --jbt-shadow:
+    0 1px 3px rgba(15, 23, 42, 0.06), 0 8px 24px -12px rgba(15, 23, 42, 0.14);
   --jbt-font:
-    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
   color-scheme: light;
 }
 
@@ -60,7 +62,8 @@
   --jbt-gold-soft: #2a2210;
   --jbt-gold-border: #4a3a12;
   --jbt-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --jbt-shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+  --jbt-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
   color-scheme: dark;
 }
 
@@ -156,6 +159,15 @@ body {
   border-color: rgba(180, 83, 9, 0.25);
   background: var(--jbt-warning-soft);
   color: var(--jbt-warning);
+}
+
+/** Tags and media markers: neutral, informational, clearly not state. */
+.jbt-pill--tag {
+  border-color: var(--jbt-border);
+  background: var(--jbt-surface-3);
+  color: var(--jbt-text-3);
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 .jbt-pill .jbt-dot {
@@ -358,7 +370,8 @@ body {
 
 .jbt-tab:focus-visible {
   outline: none;
-  box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--jbt-focus) 25%, transparent);
+  box-shadow: inset 0 0 0 3px
+    color-mix(in srgb, var(--jbt-focus) 25%, transparent);
   border-radius: 6px 6px 0 0;
 }
 
@@ -407,6 +420,84 @@ body {
   align-items: flex-start;
   gap: 12px;
   flex-wrap: wrap;
+}
+
+/** The row's pick checkbox: present, aligned, and never in the way. */
+.jbt-record__pick {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 3px;
+}
+
+.jbt-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/** The bulk header: select-all on the left, the actions once rows are picked. */
+.jbt-bulk {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  margin: 0 0 10px;
+  border: 1px solid var(--jbt-border);
+  border-radius: 10px;
+  background: var(--jbt-surface-2);
+}
+
+.jbt-bulk__select {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.jbt-bulk__actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/** The collect screen's QR counter card and invitation rows. */
+.jbt-qr {
+  display: flex;
+  justify-content: center;
+  margin: 4px 0 12px;
+}
+
+.jbt-qr__image {
+  image-rendering: pixelated;
+  border: 1px solid var(--jbt-border);
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.jbt-invite-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  padding: 10px 0;
+  border-top: 1px solid var(--jbt-border);
+}
+
+.jbt-invite-row:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.jbt-invite-row__who {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
 }
 
 .jbt-record__who {
@@ -492,7 +583,6 @@ body {
   line-height: 1.5;
   color: var(--jbt-text-3);
 }
-
 .jbt-field__error {
   margin: 0;
   font-size: 12.5px;

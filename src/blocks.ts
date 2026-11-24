@@ -48,6 +48,10 @@ export const SAMPLE_RECORDS: RenderRecord[] = [
     role: "Owner, Sample Bakery",
     rating: 5,
     avatarUrl: "",
+    ownerReply: "",
+    verified: true,
+    photoUrl: "",
+    videoUrl: "",
     approvedAt: "2026-11-10T09:00:00.000Z",
   },
   {
@@ -58,6 +62,10 @@ export const SAMPLE_RECORDS: RenderRecord[] = [
     role: "Operations Lead, Example Logistics",
     rating: 5,
     avatarUrl: "",
+    ownerReply: "",
+    verified: false,
+    photoUrl: "",
+    videoUrl: "",
     approvedAt: "2026-11-12T09:00:00.000Z",
   },
   {
@@ -68,6 +76,10 @@ export const SAMPLE_RECORDS: RenderRecord[] = [
     role: "Manager, Placeholder Cafe",
     rating: 4,
     avatarUrl: "",
+    ownerReply: "",
+    verified: false,
+    photoUrl: "",
+    videoUrl: "",
     approvedAt: "2026-11-14T09:00:00.000Z",
   },
   {
@@ -78,6 +90,10 @@ export const SAMPLE_RECORDS: RenderRecord[] = [
     role: "Founder, Demo Studio",
     rating: 5,
     avatarUrl: "",
+    ownerReply: "",
+    verified: false,
+    photoUrl: "",
+    videoUrl: "",
     approvedAt: "2026-11-16T09:00:00.000Z",
   },
   {
@@ -88,6 +104,10 @@ export const SAMPLE_RECORDS: RenderRecord[] = [
     role: "Marketing, Sample Clinic",
     rating: 4,
     avatarUrl: "",
+    ownerReply: "",
+    verified: false,
+    photoUrl: "",
+    videoUrl: "",
     approvedAt: "2026-11-18T09:00:00.000Z",
   },
   {
@@ -98,6 +118,10 @@ export const SAMPLE_RECORDS: RenderRecord[] = [
     role: "Owner, Example Garage",
     rating: 5,
     avatarUrl: "",
+    ownerReply: "",
+    verified: true,
+    photoUrl: "",
+    videoUrl: "https://www.youtube.com/watch?v=aqz-KE-bpKQ",
     approvedAt: "2026-11-20T09:00:00.000Z",
   },
 ];
@@ -112,6 +136,7 @@ function renderOptions(raw: Record<string, unknown>): RenderOptions {
     showAvatars: toBoolean(raw["showAvatars"], true),
     showRole: toBoolean(raw["showRole"], true),
     showDate: toBoolean(raw["showDate"], false),
+    autoplay: toBoolean(raw["autoplay"], false),
   };
 }
 
@@ -136,6 +161,11 @@ function renderRecords(raw: unknown): RenderRecord[] {
           : null,
       avatarUrl:
         typeof entry["avatarUrl"] === "string" ? entry["avatarUrl"] : "",
+      photoUrl: typeof entry["photoUrl"] === "string" ? entry["photoUrl"] : "",
+      videoUrl: typeof entry["videoUrl"] === "string" ? entry["videoUrl"] : "",
+      ownerReply:
+        typeof entry["ownerReply"] === "string" ? entry["ownerReply"] : "",
+      verified: entry["verified"] === true,
       approvedAt:
         typeof entry["approvedAt"] === "string" ? entry["approvedAt"] : "",
     }));
@@ -162,10 +192,12 @@ export function testimonialsBlock(): PluginBlockDefinition {
       columns: "3",
       limit: 6,
       source: "all",
+      tag: "",
       showStars: true,
       showAvatars: true,
       showRole: true,
       showDate: false,
+      autoplay: false,
       style: "cards",
     },
     preview: {
@@ -174,10 +206,12 @@ export function testimonialsBlock(): PluginBlockDefinition {
         columns: "3",
         limit: 6,
         source: "all",
+        tag: "",
         showStars: true,
         showAvatars: true,
         showRole: true,
         showDate: false,
+        autoplay: false,
         style: "cards",
         records: SAMPLE_RECORDS,
       },
@@ -235,6 +269,12 @@ export function testimonialsBlock(): PluginBlockDefinition {
         optionLabels: { all: "All approved", featured: "Featured only" },
         default: "all",
       },
+      tag: {
+        type: "text",
+        label: "Show only this tag",
+        help: 'Optional: one tag label, e.g. "Repairs". Empty shows every approved review.',
+        default: "",
+      },
       showStars: { type: "boolean", label: "Show stars", default: true },
       showAvatars: { type: "boolean", label: "Show avatars", default: true },
       showRole: {
@@ -243,6 +283,13 @@ export function testimonialsBlock(): PluginBlockDefinition {
         default: true,
       },
       showDate: { type: "boolean", label: "Show date", default: false },
+      autoplay: {
+        type: "boolean",
+        label: "Autoplay the slider",
+        help: "Advances every 6 seconds; pauses on hover and never runs under reduced motion.",
+        default: false,
+        showWhen: { field: "layout", equals: "slider" },
+      },
       style: {
         type: "select",
         label: "Style",
@@ -265,10 +312,12 @@ export function testimonialsBlock(): PluginBlockDefinition {
         columns: resolveColumns(value["columns"]),
         limit: toIntIn(value["limit"], 3, 12, 6),
         source: resolveSource(value["source"]),
+        tag: typeof value["tag"] === "string" ? value["tag"].slice(0, 40) : "",
         showStars: toBoolean(value["showStars"], true),
         showAvatars: toBoolean(value["showAvatars"], true),
         showRole: toBoolean(value["showRole"], true),
         showDate: toBoolean(value["showDate"], false),
+        autoplay: toBoolean(value["autoplay"], false),
         style: resolveStyle(value["style"]),
         /**
          * The registry renders `def.render(validateProps(storedProps))`, and
@@ -326,14 +375,28 @@ export function testimonialStripBlock(): PluginBlockDefinition {
     icon: "\u2605",
     category: "engagement",
     keywords: ["activity", "social proof", "average", "rating"],
-    defaults: {},
+    defaults: { variant: "pill" },
     preview: {
       sampleProps: {
-        stats: { approved: 12, averageRating: 4.8, publishedThisMonth: 2 },
+        variant: "pill",
+        stats: {
+          approved: 12,
+          averageRating: 4.8,
+          publishedThisMonth: 2,
+          ratingDistribution: [9, 2, 1, 0, 0],
+        },
       },
       minHeight: 48,
     },
-    schema: {},
+    schema: {
+      variant: {
+        type: "select",
+        label: "Variant",
+        options: ["pill", "detailed"],
+        optionLabels: { pill: "Pill", detailed: "With rating bars" },
+        default: "pill",
+      },
+    },
     validateProps(raw: unknown): Record<string, unknown> {
       const value =
         raw && typeof raw === "object" && !Array.isArray(raw)
@@ -345,6 +408,12 @@ export function testimonialStripBlock(): PluginBlockDefinition {
           ? (rawStats as Record<string, unknown>)
           : {};
       const averageRaw = Number(stats["averageRating"]);
+      const distributionRaw = stats["ratingDistribution"];
+      const distribution = Array.isArray(distributionRaw)
+        ? distributionRaw.map((entry) =>
+            Math.max(0, Math.trunc(Number(entry)) || 0),
+          )
+        : [0, 0, 0, 0, 0];
       /**
        * Same contract as the reviews block: the `content.blocks` pass injects
        * the live stats immediately before render, and the registry renders
@@ -352,6 +421,7 @@ export function testimonialStripBlock(): PluginBlockDefinition {
        * pass. The builder never sends `stats`, so a page save stores none.
        */
       return {
+        variant: value["variant"] === "detailed" ? "detailed" : "pill",
         stats: {
           approved: toIntIn(stats["approved"], 0, 1000000, 0),
           averageRating: Number.isFinite(averageRaw)
@@ -363,6 +433,7 @@ export function testimonialStripBlock(): PluginBlockDefinition {
             1000000,
             0,
           ),
+          ratingDistribution: distribution.slice(0, 5),
         },
       };
     },
@@ -371,6 +442,7 @@ export function testimonialStripBlock(): PluginBlockDefinition {
         props && typeof props === "object"
           ? (props as Record<string, unknown>)
           : {};
+      const variant = value["variant"] === "detailed" ? "detailed" : "pill";
       const raw = value["stats"];
       const stats =
         raw && typeof raw === "object" && !Array.isArray(raw)
@@ -386,11 +458,20 @@ export function testimonialStripBlock(): PluginBlockDefinition {
         typeof stats["publishedThisMonth"] === "number"
           ? stats["publishedThisMonth"]
           : 0;
-      return renderStrip({
-        approved,
-        averageRating: average,
-        publishedThisMonth,
-      });
+      const distribution = Array.isArray(stats["ratingDistribution"])
+        ? stats["ratingDistribution"].map((entry) =>
+            Math.max(0, Math.trunc(Number(entry)) || 0),
+          )
+        : [];
+      return renderStrip(
+        {
+          approved,
+          averageRating: average,
+          publishedThisMonth,
+          ratingDistribution: distribution,
+        },
+        variant,
+      );
     },
   };
 }

@@ -52,23 +52,49 @@
     "tab.pending": "Pending",
     "tab.approved": "Published",
     "tab.featured": "Featured",
+    "tab.trash": "Trash",
     "inbox.empty.title": "No testimonials yet",
     "inbox.empty.body": "Collect your first review, or add one manually.",
     "inbox.empty.collect": "Collect reviews",
     "inbox.empty.add": "Add one manually",
     "inbox.filtered.empty": "No reviews match this filter.",
+    "inbox.export": "Export CSV",
     "record.pending": "Pending",
     "record.approved": "Published",
+    "record.trashed": "Trashed",
     "record.featured": "Featured",
     "record.hiddenByMinimum": "Hidden by your display minimum",
+    "record.replied": "Replied",
+    "record.tagged": "Tag:",
+    "record.hasPhoto": "Photo",
+    "record.hasVideo": "Video",
+    "record.verified": "Verified",
+    "record.verify": "Verify",
+    "record.unverify": "Unverify",
+    "record.replyPreview": "Your reply:",
     "record.unrated": "No rating",
     "record.approve": "Approve",
     "record.unapprove": "Unpublish",
     "record.feature": "Feature",
     "record.unfeature": "Unfeature",
     "record.edit": "Edit",
-    "record.delete": "Delete",
-    "record.deleteConfirm": "Delete this review? This cannot be undone.",
+    "record.trash": "Trash",
+    "record.trashConfirm":
+      "Move this review to trash? You can restore it from the Trash tab.",
+    "record.restore": "Restore",
+    "record.deleteForever": "Delete forever",
+    "record.deleteForeverConfirm":
+      "Delete this review for good? This cannot be undone.",
+    "bulk.selectall": "Select all",
+    "bulk.selected": "{n} selected",
+    "bulk.approve": "Approve",
+    "bulk.feature": "Feature",
+    "bulk.trash": "Move to trash",
+    "bulk.restore": "Restore",
+    "bulk.deleteForever": "Delete forever",
+    "bulk.deleteForeverConfirm":
+      "Delete the selected reviews for good? This cannot be undone.",
+    "bulk.done": "Bulk action",
     "editor.addTitle": "Add a testimonial",
     "editor.editTitle": "Edit testimonial",
     "editor.quote": "Review text",
@@ -84,6 +110,33 @@
       "Optional. An image from this site's media library, or leave empty for initials.",
     "editor.avatarUrl.invalid":
       "Enter an image address from this site, or leave it empty.",
+    "editor.photoUrl": "Review photo",
+    "editor.photoUrl.hint":
+      "Optional. A photo you attach from this site's media library. The form never accepts uploads, so every photo is one you chose.",
+    "editor.photoUrl.invalid":
+      "Enter an image address from this site, or leave it empty.",
+    "editor.videoUrl": "Video review",
+    "editor.videoUrl.hint":
+      "Optional. A YouTube or Vimeo address. The site shows a click-to-load player, so the video only loads when a visitor asks.",
+    "editor.videoUrl.invalid":
+      "Enter a YouTube or Vimeo address, or leave it empty.",
+    "editor.tag": "Tag",
+    "editor.tag.hint":
+      "Optional, one short label such as 'Repairs'. A Testimonials block can show only one tag.",
+    "editor.locale": "Language",
+    "editor.locale.hint":
+      "Optional, a language tag like en-US or nl. The review then only shows on pages of the same language; empty shows it everywhere.",
+    "editor.locale.invalid":
+      "Enter a language tag like en-US or nl, or leave it empty.",
+    "editor.ownerReply": "Owner reply",
+    "editor.ownerReply.hint":
+      "Shown under the review on the site. Leave empty for no reply.",
+    "editor.note": "Internal note",
+    "editor.note.hint":
+      "Only moderators see this. It is never shown on the site.",
+    "editor.verified": "Verified by the site owner",
+    "editor.verified.hint":
+      "Your own attestation that this customer is real. The site shows it as a small badge.",
     "editor.rating": "Star rating",
     "editor.rating.hint": "Optional. Unrated reviews show no stars.",
     "editor.rating.none": "No rating",
@@ -133,7 +186,7 @@
       "In the page builder, insert the Review form block wherever the form should appear. The form uses the site's CAPTCHA and every submission lands here as pending.",
     "collect.step2": "Tell the inbox where that page lives",
     "collect.step2.body":
-      "Paste the page address below; the panel then offers a shareable link for email and social posts.",
+      "Paste the page address below, including any language prefix (e.g. /nl-NL/reviews), so the links and QR code open the right page. The form on that page records the page's language for each review.",
     "collect.url": "Reviews page address",
     "collect.url.hint": "For example /reviews, or the full address.",
     "collect.url.invalid":
@@ -141,6 +194,36 @@
     "collect.copy": "Copy link",
     "collect.copied": "Link copied",
     "collect.saveUrl": "Save address",
+    "collect.qr.title": "Counter card",
+    "collect.qr.hint":
+      "A QR code of the reviews page: print it for the counter, scan it from a phone.",
+    "collect.qr.alt": "QR code for the reviews page",
+    "collect.qr.download": "Download PNG",
+    "collect.invite.title": "Invite a customer",
+    "collect.invite.hint":
+      "Sends a personal invitation with the reviews page link. No scheduler, no drip — one email, sent now.",
+    "collect.invite.name": "Customer name (optional)",
+    "collect.invite.name.hint":
+      "The invitation greets them by name and pre-fills the form.",
+    "collect.invite.email": "Email address",
+    "collect.invite.email.hint": "Where the invitation is sent.",
+    "collect.invite.note": "A line from you (optional)",
+    "collect.invite.note.hint":
+      "Added to the email, e.g. 'Thanks for the repair last week.'",
+    "collect.invite.send": "Send invitation",
+    "collect.invite.resend": "Re-send",
+    "collect.invite.sent": "Invitations sent",
+    "collect.invite.sentOk": "Invitation sent.",
+    "collect.import.title": "Import reviews",
+    "collect.import.hint":
+      "Paste CSV rows — quote, name, role, rating. Every row is moderated before it appears.",
+    "collect.import.paste": "Paste CSV",
+    "collect.import.consent": "I confirm permission to publish was given",
+    "collect.import.consent.hint":
+      "Your attestation travels with every imported review, same as the editor's.",
+    "collect.import.run": "Import as pending",
+    "collect.import.done": "{n} imported, awaiting approval.",
+    "collect.import.failed": "Row {row}: {error}",
     "collect.noUrl": "No address saved yet.",
     "collect.linkReady": "Share this link to collect reviews:",
     "save.savedSettings": "Settings saved",
@@ -161,6 +244,7 @@
     { id: "pending", labelKey: "tab.pending" },
     { id: "approved", labelKey: "tab.approved" },
     { id: "featured", labelKey: "tab.featured" },
+    { id: "trash", labelKey: "tab.trash" },
   ];
 
   /** The frame's state: one object, re-rendered on every deliberate change. */
@@ -184,6 +268,17 @@
     layoutChoice: "slider",
     /** The last "Apply layout" outcome, or null when it has not run. */
     layoutApply: null,
+    /** The inbox's row selection for bulk actions, keyed by record id. */
+    bulk: {},
+    bulkAll: false,
+    /** The invite form's fields and the outcome line under it. */
+    invite: { name: "", email: "", note: "" },
+    inviteMessage: "",
+    inviteBusy: false,
+    /** The import box: pasted CSV, the consent attestation, the report. */
+    importText: "",
+    importConsent: false,
+    importResult: null,
   };
 
   /** Look a label up in the loaded catalog, falling back to English. */
@@ -602,6 +697,14 @@
         ]),
         h("div", { class: "jbt-head-actions" }, [
           h(
+            "a",
+            {
+              class: "jbt-btn jbt-btn--ghost",
+              href: "/api/brayne-testimonials/export",
+            },
+            [t("inbox.export")],
+          ),
+          h(
             "button",
             {
               class: "jbt-btn jbt-btn--ghost",
@@ -697,10 +800,16 @@
       [],
     );
     var counts = {
-      all: records.length,
+      /** "All" is everything the owner moderates; trash has its own tab. */
+      all: records.filter(function (record) {
+        return record.status !== "trash";
+      }).length,
       pending: stats.pending,
       approved: stats.approved,
       featured: stats.featured,
+      trash: records.filter(function (record) {
+        return record.status === "trash";
+      }).length,
     };
     TABS.forEach(function (entry) {
       tablist.appendChild(
@@ -714,6 +823,8 @@
             tabindex: state.tab === entry.id ? "0" : "-1",
             onclick: function () {
               state.tab = entry.id;
+              state.bulk = {};
+              state.bulkAll = false;
               render();
             },
           },
@@ -727,7 +838,8 @@
       if (state.tab === "pending") return record.status === "pending";
       if (state.tab === "approved") return record.status === "approved";
       if (state.tab === "featured") return Boolean(record.featuredAt);
-      return true;
+      if (state.tab === "trash") return record.status === "trash";
+      return record.status !== "trash";
     });
 
     if (records.length === 0) {
@@ -775,11 +887,157 @@
       return wrap;
     }
 
+    /** The select-all row and the bulk bar, above the cards they act on. */
+    wrap.appendChild(bulkBar(visible));
+
     visible.forEach(function (record) {
       wrap.appendChild(recordCard(record));
     });
 
     return wrap;
+  }
+
+  /**
+   * The bulk header: one select-all checkbox plus, once anything is picked,
+   * the actions that make sense for the tab. Each action walks the selection
+   * through the same per-record route the single buttons use, so there is
+   * exactly one moderation path on the server.
+   */
+  function bulkBar(visible) {
+    var selected = visible.filter(function (record) {
+      return state.bulk[record.id] === true;
+    });
+
+    var selectAll = h("input", { type: "checkbox" });
+    selectAll.checked =
+      selected.length === visible.length && visible.length > 0;
+    selectAll.addEventListener("change", function (event) {
+      state.bulkAll = event.target.checked;
+      state.bulk = {};
+      if (state.bulkAll) {
+        visible.forEach(function (record) {
+          state.bulk[record.id] = true;
+        });
+      }
+      render();
+    });
+
+    var bar = h("div", { class: "jbt-bulk" }, [
+      h("label", { class: "jbt-bulk__select" }, [
+        selectAll,
+        h("span", {
+          text:
+            selected.length > 0
+              ? t("bulk.selected").replace("{n}", String(selected.length))
+              : t("bulk.selectall"),
+        }),
+      ]),
+    ]);
+
+    if (selected.length === 0) return bar;
+
+    var run = function (action) {
+      /** The fresh payload after each call moves records between tabs, so
+       * the selection is captured before the first call runs. */
+      var ids = selected.map(function (record) {
+        return record.id;
+      });
+      state.bulk = {};
+      state.bulkAll = false;
+      var chain = Promise.resolve();
+      ids.forEach(function (id) {
+        chain = chain.then(function () {
+          return send("POST", "/moderate", { id: id, action: action });
+        });
+      });
+      chain
+        .then(function () {
+          return send("GET", "/admin-data");
+        })
+        .then(function (result) {
+          if (result.ok) {
+            state.data = result.body;
+            state.saved = true;
+            state.savedKind = t("bulk.done");
+            render();
+          }
+        })
+        .catch(function () {
+          render();
+        });
+    };
+
+    var buttons = h("div", { class: "jbt-bulk__actions" }, []);
+    if (state.tab === "trash") {
+      buttons.appendChild(
+        h(
+          "button",
+          {
+            class: "jbt-btn jbt-btn--primary",
+            type: "button",
+            onclick: function () {
+              run("restore");
+            },
+          },
+          [t("bulk.restore")],
+        ),
+      );
+      buttons.appendChild(
+        h(
+          "button",
+          {
+            class: "jbt-btn jbt-btn--danger",
+            type: "button",
+            onclick: function () {
+              if (window.confirm(t("bulk.deleteForeverConfirm"))) run("delete");
+            },
+          },
+          [t("bulk.deleteForever")],
+        ),
+      );
+    } else {
+      buttons.appendChild(
+        h(
+          "button",
+          {
+            class: "jbt-btn jbt-btn--primary",
+            type: "button",
+            onclick: function () {
+              run("approve");
+            },
+          },
+          [t("bulk.approve")],
+        ),
+      );
+      buttons.appendChild(
+        h(
+          "button",
+          {
+            class: "jbt-btn jbt-btn--quiet",
+            type: "button",
+            onclick: function () {
+              run("feature");
+            },
+          },
+          [t("bulk.feature")],
+        ),
+      );
+      buttons.appendChild(
+        h(
+          "button",
+          {
+            class: "jbt-btn jbt-btn--danger",
+            type: "button",
+            onclick: function () {
+              run("trash");
+            },
+          },
+          [t("bulk.trash")],
+        ),
+      );
+    }
+    bar.appendChild(buttons);
+    return bar;
   }
 
   /** One inbox card: identity, quote, state, and the moderation actions. */
@@ -794,12 +1052,18 @@
             "jbt-pill " +
             (record.status === "approved"
               ? "jbt-pill--success"
-              : "jbt-pill--warning"),
+              : record.status === "trash"
+                ? "jbt-pill--muted"
+                : "jbt-pill--warning"),
         },
         [
           h("span", { class: "jbt-dot" }),
           t(
-            record.status === "approved" ? "record.approved" : "record.pending",
+            record.status === "approved"
+              ? "record.approved"
+              : record.status === "trash"
+                ? "record.trashed"
+                : "record.pending",
           ),
         ],
       ),
@@ -809,6 +1073,13 @@
         h("span", { class: "jbt-pill" }, ["\u2605 " + t("record.featured")]),
       );
     }
+    if (record.verified) {
+      pills.appendChild(
+        h("span", { class: "jbt-pill jbt-pill--muted" }, [
+          t("record.verified"),
+        ]),
+      );
+    }
     if (min >= 1 && record.rating === null && record.status === "approved") {
       pills.appendChild(
         h("span", { class: "jbt-pill jbt-pill--muted" }, [
@@ -816,77 +1087,171 @@
         ]),
       );
     }
+    if (record.ownerReply) {
+      pills.appendChild(
+        h("span", { class: "jbt-pill jbt-pill--muted" }, [t("record.replied")]),
+      );
+    }
+    if (record.tag) {
+      pills.appendChild(
+        h("span", { class: "jbt-pill jbt-pill--tag" }, [
+          t("record.tagged") + " " + record.tag,
+        ]),
+      );
+    }
+    if (record.photoUrl || record.videoUrl) {
+      pills.appendChild(
+        h("span", { class: "jbt-pill jbt-pill--tag" }, [
+          record.videoUrl ? t("record.hasVideo") : t("record.hasPhoto"),
+        ]),
+      );
+    }
+    if (record.locale) {
+      pills.appendChild(
+        h("span", { class: "jbt-pill jbt-pill--tag" }, [record.locale]),
+      );
+    }
+
+    /** The row's pick checkbox, wired to the bulk state. */
+    var pick = h("input", { type: "checkbox" });
+    pick.checked = state.bulk[record.id] === true;
+    pick.addEventListener("change", function (event) {
+      if (event.target.checked) state.bulk[record.id] = true;
+      else delete state.bulk[record.id];
+      render();
+    });
 
     var actions = h("div", { class: "jbt-record__actions" }, []);
-    actions.appendChild(
-      h(
-        "button",
-        {
-          class:
-            "jbt-btn " +
-            (record.status === "approved"
-              ? "jbt-btn--quiet"
-              : "jbt-btn--primary"),
-          type: "button",
-          onclick: function () {
-            moderate(
-              record.id,
-              record.status === "approved" ? "unapprove" : "approve",
-            );
+    if (record.status === "trash") {
+      /** Trashed rows offer the way back, and the permanent way out. */
+      actions.appendChild(
+        h(
+          "button",
+          {
+            class: "jbt-btn jbt-btn--primary",
+            type: "button",
+            onclick: function () {
+              moderate(record.id, "restore");
+            },
           },
-        },
-        [
-          t(
-            record.status === "approved"
-              ? "record.unapprove"
-              : "record.approve",
-          ),
-        ],
-      ),
-    );
-    actions.appendChild(
-      h(
-        "button",
-        {
-          class: "jbt-btn jbt-btn--quiet",
-          type: "button",
-          onclick: function () {
-            moderate(record.id, record.featuredAt ? "unfeature" : "feature");
+          [t("record.restore")],
+        ),
+      );
+      actions.appendChild(
+        h(
+          "button",
+          {
+            class: "jbt-btn jbt-btn--ghost",
+            type: "button",
+            onclick: function () {
+              openEditor(record.id);
+            },
           },
-        },
-        [t(record.featuredAt ? "record.unfeature" : "record.feature")],
-      ),
-    );
-    actions.appendChild(
-      h(
-        "button",
-        {
-          class: "jbt-btn jbt-btn--ghost",
-          type: "button",
-          onclick: function () {
-            openEditor(record.id);
+          [t("record.edit")],
+        ),
+      );
+      actions.appendChild(
+        h(
+          "button",
+          {
+            class: "jbt-btn jbt-btn--danger",
+            type: "button",
+            onclick: function () {
+              if (window.confirm(t("record.deleteForeverConfirm")))
+                moderate(record.id, "delete");
+            },
           },
-        },
-        [t("record.edit")],
-      ),
-    );
-    actions.appendChild(
-      h(
-        "button",
-        {
-          class: "jbt-btn jbt-btn--danger",
-          type: "button",
-          onclick: function () {
-            if (window.confirm(t("record.deleteConfirm")))
-              moderate(record.id, "delete");
+          [t("record.deleteForever")],
+        ),
+      );
+    } else {
+      actions.appendChild(
+        h(
+          "button",
+          {
+            class:
+              "jbt-btn " +
+              (record.status === "approved"
+                ? "jbt-btn--quiet"
+                : "jbt-btn--primary"),
+            type: "button",
+            onclick: function () {
+              moderate(
+                record.id,
+                record.status === "approved" ? "unapprove" : "approve",
+              );
+            },
           },
-        },
-        [t("record.delete")],
-      ),
-    );
+          [
+            t(
+              record.status === "approved"
+                ? "record.unapprove"
+                : "record.approve",
+            ),
+          ],
+        ),
+      );
+      actions.appendChild(
+        h(
+          "button",
+          {
+            class: "jbt-btn jbt-btn--quiet",
+            type: "button",
+            onclick: function () {
+              moderate(record.id, record.featuredAt ? "unfeature" : "feature");
+            },
+          },
+          [t(record.featuredAt ? "record.unfeature" : "record.feature")],
+        ),
+      );
+      actions.appendChild(
+        h(
+          "button",
+          {
+            class: "jbt-btn jbt-btn--quiet",
+            type: "button",
+            onclick: function () {
+              moderate(record.id, record.verified ? "unverify" : "verify");
+            },
+          },
+          [t(record.verified ? "record.unverify" : "record.verify")],
+        ),
+      );
+      actions.appendChild(
+        h(
+          "button",
+          {
+            class: "jbt-btn jbt-btn--ghost",
+            type: "button",
+            onclick: function () {
+              openEditor(record.id);
+            },
+          },
+          [t("record.edit")],
+        ),
+      );
+      actions.appendChild(
+        h(
+          "button",
+          {
+            class: "jbt-btn jbt-btn--danger",
+            type: "button",
+            onclick: function () {
+              if (window.confirm(t("record.trashConfirm")))
+                moderate(record.id, "trash");
+            },
+          },
+          [t("record.trash")],
+        ),
+      );
+    }
 
     return h("article", { class: "jbt-record" }, [
       h("div", { class: "jbt-record__top" }, [
+        h("label", { class: "jbt-record__pick" }, [
+          pick,
+          h("span", { class: "jbt-visually-hidden", text: record.personName }),
+        ]),
         h("div", { class: "jbt-record__who" }, [
           h("div", { class: "jbt-record__name", text: record.personName }),
           record.role
@@ -897,6 +1262,12 @@
       ]),
       starRow(record.rating),
       h("blockquote", { class: "jbt-record__quote", text: record.quote }),
+      record.ownerReply
+        ? h("p", {
+            class: "jbt-record__meta",
+            text: t("record.replyPreview") + " " + record.ownerReply,
+          })
+        : null,
       h("div", { class: "jbt-record__meta" }, [
         t("date.submitted") + " " + friendlyDate(record.submittedAt),
         record.approvedAt
@@ -926,6 +1297,13 @@
         role: "",
         rating: null,
         avatarUrl: "",
+        photoUrl: "",
+        videoUrl: "",
+        tag: "",
+        locale: "",
+        ownerReply: "",
+        note: "",
+        verified: false,
         consent: true,
         status: "pending",
         source: "manual",
@@ -1037,6 +1415,34 @@
               maxlength: 500,
             },
           ),
+          labeledInput("photoUrl", "editor.photoUrl", "editor.photoUrl.hint", {
+            maxlength: 500,
+          }),
+          labeledInput("videoUrl", "editor.videoUrl", "editor.videoUrl.hint", {
+            maxlength: 500,
+          }),
+          labeledInput("tag", "editor.tag", "editor.tag.hint", {
+            maxlength: 40,
+          }),
+          labeledInput("locale", "editor.locale", "editor.locale.hint", {
+            maxlength: 40,
+          }),
+          labeledInput(
+            "ownerReply",
+            "editor.ownerReply",
+            "editor.ownerReply.hint",
+            {
+              multiline: true,
+              rows: 3,
+              maxlength: 500,
+            },
+          ),
+          labeledInput("note", "editor.note", "editor.note.hint", {
+            multiline: true,
+            rows: 2,
+            maxlength: 300,
+          }),
+          checkrowNode("verified", "editor.verified", "editor.verified.hint"),
           h("div", { class: "jbt-field" }, [
             h("span", { class: "jbt-field__label", text: t("editor.rating") }),
             ratingPicker(),
@@ -1469,7 +1875,425 @@
       );
     }
 
+    /* The shareable QR: print it for a counter, scan it from a phone. */
+    if (url) {
+      var absoluteQr =
+        url.indexOf("http") === 0 ? url : window.location.origin + url;
+      var qrWrap = h("div", { class: "jbt-card" }, []);
+      var qrSection = h("section", {}, []);
+      qrSection.appendChild(
+        h("div", { class: "jbt-card__head" }, [
+          h("h2", { class: "jbt-card__title", text: t("collect.qr.title") }),
+        ]),
+      );
+      var qrBody = h("div", { class: "jbt-card__body" }, [
+        h("p", { class: "jbt-field__hint", text: t("collect.qr.hint") }),
+      ]);
+      var qrImage = h("img", {
+        class: "jbt-qr__image",
+        alt: t("collect.qr.alt"),
+      });
+      try {
+        var qrCode = window.qrcode(0, "M");
+        qrCode.addData(absoluteQr);
+        qrCode.make();
+        /**
+         * Draw through a canvas so the download is a real PNG: the library's
+         * own data URL is a GIF, and a "Download PNG" that saves a GIF would
+         * be a lie in the file name.
+         */
+        var cellSize = 4;
+        var margin = 8;
+        var size = qrCode.getModuleCount() * cellSize + margin * 2;
+        var canvas = h("canvas", { width: size, height: size });
+        var context = canvas.getContext("2d");
+        context.fillStyle = "#ffffff";
+        context.fillRect(0, 0, size, size);
+        context.fillStyle = "#000000";
+        context.translate(margin, margin);
+        qrCode.renderTo2dContext(context, cellSize);
+        qrImage.src = canvas.toDataURL("image/png");
+      } catch (err) {
+        /** A QR that cannot be drawn is a cosmetic loss, not an error. */
+        qrImage.removeAttribute("src");
+      }
+      qrBody.appendChild(h("div", { class: "jbt-qr" }, [qrImage]));
+      qrBody.appendChild(
+        h("div", { class: "jbt-record__actions" }, [
+          h(
+            "a",
+            {
+              class: "jbt-btn jbt-btn--primary",
+              href: qrImage.src || "",
+              download: "brayne-reviews-qr.png",
+            },
+            [t("collect.qr.download")],
+          ),
+        ]),
+      );
+      qrSection.appendChild(qrBody);
+      qrWrap.appendChild(qrSection);
+      wrap.appendChild(qrWrap);
+    }
+
+    /* Invite one customer: on-demand email with their name in the link. */
+    wrap.appendChild(
+      h("section", { class: "jbt-card" }, [
+        h("div", { class: "jbt-card__head" }, [
+          h("h2", {
+            class: "jbt-card__title",
+            text: t("collect.invite.title"),
+          }),
+        ]),
+        h("div", { class: "jbt-card__body" }, [
+          h("p", { class: "jbt-field__hint", text: t("collect.invite.hint") }),
+          inviteField(
+            "name",
+            "collect.invite.name",
+            "collect.invite.name.hint",
+            80,
+          ),
+          inviteField(
+            "email",
+            "collect.invite.email",
+            "collect.invite.email.hint",
+            200,
+          ),
+          inviteField(
+            "note",
+            "collect.invite.note",
+            "collect.invite.note.hint",
+            300,
+          ),
+          h("div", { class: "jbt-record__actions" }, [
+            h(
+              "button",
+              {
+                class: "jbt-btn jbt-btn--primary",
+                type: "button",
+                disabled: state.inviteBusy ? "disabled" : null,
+                onclick: function () {
+                  sendInvitation();
+                },
+              },
+              [t("collect.invite.send")],
+            ),
+          ]),
+          state.inviteMessage
+            ? h("p", {
+                class: "jbt-field__hint",
+                role: "status",
+                text: state.inviteMessage,
+              })
+            : null,
+        ]),
+      ]),
+    );
+
+    /* Who was asked, and the re-send button for a gentle nudge. */
+    var sent = Array.isArray(state.data.invitations)
+      ? state.data.invitations
+      : [];
+    if (sent.length > 0) {
+      var sentBody = h("div", { class: "jbt-card__body" }, []);
+      sent.forEach(function (row) {
+        sentBody.appendChild(
+          h("div", { class: "jbt-invite-row" }, [
+            h("span", { class: "jbt-invite-row__who" }, [
+              h("span", {
+                class: "jbt-record__name",
+                text: row.name || row.email,
+              }),
+              h("span", {
+                class: "jbt-record__meta",
+                text: row.email + " \u00b7 " + friendlyDate(row.sentAt),
+              }),
+            ]),
+            h(
+              "button",
+              {
+                class: "jbt-btn jbt-btn--quiet",
+                type: "button",
+                onclick: function () {
+                  resendInvitation(row);
+                },
+              },
+              [t("collect.invite.resend")],
+            ),
+          ]),
+        );
+      });
+      wrap.appendChild(
+        h("section", { class: "jbt-card" }, [
+          h("div", { class: "jbt-card__head" }, [
+            h("h2", {
+              class: "jbt-card__title",
+              text: t("collect.invite.sent"),
+            }),
+          ]),
+          sentBody,
+        ]),
+      );
+    }
+
+    /* Import: paste a CSV, every row lands pending. */
+    wrap.appendChild(
+      h("section", { class: "jbt-card" }, [
+        h("div", { class: "jbt-card__head" }, [
+          h("h2", {
+            class: "jbt-card__title",
+            text: t("collect.import.title"),
+          }),
+        ]),
+        h("div", { class: "jbt-card__body" }, [
+          h("p", { class: "jbt-field__hint", text: t("collect.import.hint") }),
+          h("div", { class: "jbt-field" }, [
+            h("span", {
+              class: "jbt-field__label",
+              text: t("collect.import.paste"),
+            }),
+            importTextarea(),
+          ]),
+          h("label", { class: "jbt-checkrow" }, [
+            importConsentBox(),
+            h("span", { class: "jbt-checkrow__text" }, [
+              h("span", {
+                class: "jbt-checkrow__label",
+                text: t("collect.import.consent"),
+              }),
+              h("span", {
+                class: "jbt-checkrow__meta",
+                text: t("collect.import.consent.hint"),
+              }),
+            ]),
+          ]),
+          h("div", { class: "jbt-record__actions" }, [
+            h(
+              "button",
+              {
+                class: "jbt-btn jbt-btn--primary",
+                type: "button",
+                disabled: state.importConsent ? null : "disabled",
+                onclick: function () {
+                  runImport();
+                },
+              },
+              [t("collect.import.run")],
+            ),
+          ]),
+          state.importResult ? importReport() : null,
+        ]),
+      ]),
+    );
+
     return wrap;
+  }
+
+  /** One invite-form input, backed by `state.invite`, not the settings draft. */
+  function inviteField(key, labelKey, hintKey, maxlength) {
+    var input = h("input", { class: "jbt-input", maxlength: maxlength });
+    input.value = String(state.invite[key] || "");
+    input.addEventListener("input", function (event) {
+      state.invite[key] = event.target.value;
+    });
+    return h("div", { class: "jbt-field" }, [
+      h("label", { class: "jbt-field__label", text: t(labelKey) }),
+      input,
+      h("p", { class: "jbt-field__hint", text: t(hintKey) }),
+    ]);
+  }
+
+  /** The pasted-CSV box, without re-rendering on every keystroke. */
+  function importTextarea() {
+    var area = h("textarea", { class: "jbt-input", rows: 6 });
+    area.value = state.importText;
+    area.addEventListener("input", function (event) {
+      state.importText = event.target.value;
+    });
+    return area;
+  }
+
+  function importConsentBox() {
+    var box = h("input", { type: "checkbox" });
+    box.checked = state.importConsent;
+    box.addEventListener("change", function (event) {
+      state.importConsent = event.target.checked;
+      render();
+    });
+    return box;
+  }
+
+  /** The import's per-row report, mirroring what the server answered. */
+  function importReport() {
+    var result = state.importResult;
+    if (!result) return null;
+    var lines = [
+      t("collect.import.done").replace("{n}", String(result.imported)),
+    ];
+    (result.failed || []).forEach(function (failure) {
+      lines.push(
+        t("collect.import.failed")
+          .replace("{row}", String(failure.row))
+          .replace("{error}", String(failure.message)),
+      );
+    });
+    return h("p", {
+      class: "jbt-field__hint",
+      role: "status",
+      text: lines.join(" "),
+    });
+  }
+
+  /**
+   * Parse the pasted CSV, RFC 4180: quoted fields, doubled quotes, and
+   * either the export's own header row or the plain positional columns
+   * (quote, name, role, rating, consent).
+   */
+  function parseCsv(text) {
+    var rows = [];
+    var row = [];
+    var cell = "";
+    var inQuotes = false;
+    for (var i = 0; i < text.length; i += 1) {
+      var ch = text.charAt(i);
+      if (inQuotes) {
+        if (ch === '"') {
+          if (text.charAt(i + 1) === '"') {
+            cell += '"';
+            i += 1;
+          } else {
+            inQuotes = false;
+          }
+        } else {
+          cell += ch;
+        }
+      } else if (ch === '"') {
+        inQuotes = true;
+      } else if (ch === ",") {
+        row.push(cell);
+        cell = "";
+      } else if (ch === "\n" || ch === "\r") {
+        if (ch === "\r" && text.charAt(i + 1) === "\n") i += 1;
+        row.push(cell);
+        cell = "";
+        if (row.length > 1 || row[0].trim() !== "") rows.push(row);
+        row = [];
+      } else {
+        cell += ch;
+      }
+    }
+    row.push(cell);
+    if (row.length > 1 || row[0].trim() !== "") rows.push(row);
+    return rows;
+  }
+
+  /** Turn parsed CSV rows into import row objects for the server. */
+  function csvToRows(parsed) {
+    if (parsed.length === 0) return [];
+    var first = parsed[0].map(function (entry) {
+      return String(entry).trim().toLowerCase();
+    });
+    var header = first.indexOf("quote") >= 0;
+    var data = header ? parsed.slice(1) : parsed;
+    var columns = header
+      ? first
+      : ["quote", "personname", "role", "rating", "consent"];
+    return data
+      .map(function (cells) {
+        var row = {};
+        columns.forEach(function (name, index) {
+          var value = cells[index];
+          if (value === undefined) return;
+          if (name === "quote") row.quote = value;
+          else if (name === "personname") row.personName = value;
+          else if (name === "role") row.role = value;
+          else if (name === "rating") {
+            var parsedRating = String(value).trim();
+            row.rating =
+              parsedRating === "" ? null : Number.parseInt(parsedRating, 10);
+          } else if (name === "locale") {
+            row.locale = String(value).trim();
+          }
+        });
+        return row;
+      })
+      .filter(function (row) {
+        return (
+          (typeof row.quote === "string" && row.quote.trim() !== "") ||
+          (typeof row.personName === "string" && row.personName.trim() !== "")
+        );
+      })
+      .map(function (row) {
+        row.consent = true;
+        return row;
+      });
+  }
+
+  function sendInvitation() {
+    state.inviteBusy = true;
+    state.inviteMessage = "";
+    render();
+    send("POST", "/invite", state.invite).then(function (result) {
+      state.inviteBusy = false;
+      if (result.ok) {
+        state.data = result.body;
+        state.invite = { name: "", email: "", note: "" };
+        state.inviteMessage = t("collect.invite.sentOk");
+        render();
+        return;
+      }
+      state.inviteMessage = result.body.error
+        ? String(result.body.error)
+        : t("save.failed");
+      render();
+    });
+  }
+
+  function resendInvitation(row) {
+    send("POST", "/invite", {
+      name: row.name || "",
+      email: row.email,
+      note: row.note || "",
+    }).then(function (result) {
+      if (result.ok) {
+        state.data = result.body;
+        state.inviteMessage = t("collect.invite.sentOk");
+        render();
+        return;
+      }
+      state.inviteMessage = result.body.error
+        ? String(result.body.error)
+        : t("save.failed");
+      render();
+    });
+  }
+
+  function runImport() {
+    var parsed = parseCsv(state.importText);
+    var rows = csvToRows(parsed);
+    if (rows.length === 0) {
+      state.importResult = { imported: 0, failed: [] };
+      state.inviteMessage = "";
+      render();
+      return;
+    }
+    send("POST", "/import", { rows: rows }).then(function (result) {
+      if (result.ok) {
+        state.importResult = result.body;
+        state.importText = "";
+        state.importConsent = false;
+        /** Refresh the inbox counts behind this screen. */
+        return send("GET", "/admin-data").then(function (fresh) {
+          if (fresh.ok) state.data = fresh.body;
+          render();
+        });
+      }
+      state.importResult = {
+        imported: 0,
+        failed: [{ row: 0, message: result.body.error || t("save.failed") }],
+      };
+      render();
+    });
   }
 
   /* ------------------------------------------------------------- view state */
@@ -1502,7 +2326,33 @@
     if (avatar && !/^(?:https?:\/\/[^\s"'<>]+|\/[^\s"'<>]*)$/.test(avatar)) {
       errors.avatarUrl = t("editor.avatarUrl.invalid");
     }
+    var photo = String(draft.photoUrl || "").trim();
+    if (photo && !/^(?:https?:\/\/[^\s"'<>]+|\/[^\s"'<>]*)$/.test(photo)) {
+      errors.photoUrl = t("editor.photoUrl.invalid");
+    }
+    var video = String(draft.videoUrl || "").trim();
+    if (video && !isKnownVideoUrl(video)) {
+      errors.videoUrl = t("editor.videoUrl.invalid");
+    }
+    var locale = String(draft.locale || "").trim();
+    if (
+      locale &&
+      !/^[A-Za-z]{2,3}(?:-[A-Za-z]{4})?(?:-[A-Za-z]{2}|\d{3})?(?:-[A-Za-z0-9]{5,8})*$/.test(
+        locale,
+      )
+    ) {
+      errors.locale = t("editor.locale.invalid");
+    }
     return errors;
+  }
+
+  /** The same hosts the server's allowlist takes, mirrored client-side. */
+  function isKnownVideoUrl(raw) {
+    return (
+      /^https:\/\/www\.youtube\.com\/watch\?v=[A-Za-z0-9_-]{6,20}/.test(raw) ||
+      /^https:\/\/youtu\.be\/[A-Za-z0-9_-]{6,20}/.test(raw) ||
+      /^https:\/\/vimeo\.com\/[0-9]{4,12}/.test(raw)
+    );
   }
 
   function saveRecord() {
@@ -1528,6 +2378,13 @@
       role: state.draft.role || "",
       rating: state.draft.rating === null ? "" : state.draft.rating,
       avatarUrl: state.draft.avatarUrl || "",
+      photoUrl: state.draft.photoUrl || "",
+      videoUrl: state.draft.videoUrl || "",
+      tag: state.draft.tag || "",
+      locale: state.draft.locale || "",
+      ownerReply: state.draft.ownerReply || "",
+      note: state.draft.note || "",
+      verified: state.draft.verified === true,
       consent: state.draft.consent,
       status: state.draft.status || "pending",
       source: state.draft.source || "manual",

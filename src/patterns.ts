@@ -15,11 +15,20 @@ import {
 function displayBlock(
   id: string,
   props: Record<string, unknown>,
-): { id: string; type: string; version: number; props: Record<string, unknown> } {
+): {
+  id: string;
+  type: string;
+  version: number;
+  props: Record<string, unknown>;
+} {
   return { id, type: TESTIMONIALS_BLOCK, version: 1, props };
 }
 
-/** The three patterns the design file specifies, as block compositions. */
+/**
+ * The four patterns the design file specifies, as block compositions. Every
+ * pattern composes only blocks this plugin registers, so inserting one never
+ * depends on another extension.
+ */
 export function testimonialPatterns(): PluginPatternDefinition[] {
   return [
     {
@@ -42,20 +51,35 @@ export function testimonialPatterns(): PluginPatternDefinition[] {
       ],
     },
     {
+      id: "stats-band",
+      title: "Stats band",
+      description:
+        "The honest numbers and the five-star distribution, in one narrow card.",
+      requiresBlockTypes: [STRIP_BLOCK],
+      blocks: [
+        {
+          id: "stats-band-strip",
+          type: STRIP_BLOCK,
+          version: 1,
+          props: { variant: "detailed" },
+        },
+      ],
+    },
+    {
       id: "hero-with-social-proof",
       title: "Hero with social proof",
-      description: "The activity strip above a short row of reviews.",
+      description: "The activity strip above one big feature quote.",
       requiresBlockTypes: [TESTIMONIALS_BLOCK, STRIP_BLOCK],
       blocks: [
         { id: "hero-strip", type: STRIP_BLOCK, version: 1, props: {} },
-        displayBlock("hero-row", {
-          layout: "grid",
+        displayBlock("hero-feature", {
+          layout: "feature",
           columns: "3",
-          limit: 3,
-          source: "all",
-          style: "minimal",
+          limit: 1,
+          source: "featured",
+          style: "cards",
           showStars: true,
-          showAvatars: false,
+          showAvatars: true,
           showRole: true,
           showDate: false,
         }),

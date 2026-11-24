@@ -49,13 +49,48 @@ describe("blocks", () => {
       columns: "3",
       limit: 9,
       source: "all",
+      tag: "",
       showStars: true,
       showAvatars: true,
       showRole: true,
       showDate: false,
+      autoplay: false,
       style: "cards",
       records: [],
     });
+  });
+
+  it("keeps the tag the author typed and bounds it like the server", () => {
+    const block = testimonialsBlock();
+    const kept = block.validateProps({ tag: "  Repairs  " });
+    expect(kept["tag"]).toBe("  Repairs  ".slice(0, 40));
+    const bounded = block.validateProps({ tag: "x".repeat(60) });
+    expect(bounded["tag"]).toBe("x".repeat(40));
+    expect(block.validateProps({ tag: 42 })["tag"]).toBe("");
+  });
+
+  it("coerces a hydrated record's photo and video onto the render record", () => {
+    const block = testimonialsBlock();
+    const validated = block.validateProps({
+      records: [
+        {
+          id: "t1",
+          quote: "Lovely work.",
+          personName: "Ama",
+          rating: 5,
+          photoUrl: "/media/reviews/shop.png",
+          videoUrl: "https://vimeo.com/76979871",
+        },
+      ],
+    });
+    const records = validated["records"] as Array<Record<string, unknown>>;
+    expect(records).toHaveLength(1);
+    const first = records[0];
+    expect(first?.["photoUrl"]).toBe("/media/reviews/shop.png");
+    expect(first?.["videoUrl"]).toBe("https://vimeo.com/76979871");
+    const html = block.render(validated);
+    expect(html).toContain("jbt-card__photo-review");
+    expect(html).toContain("data-jbt-video");
   });
 
   it("renders the honest empty state when no records reach the block", () => {
@@ -75,16 +110,35 @@ describe("blocks", () => {
       averageRating: 4.75,
       ratedCount: 10,
       publishedThisMonth: 2,
+      ratingDistribution: [8, 2, 1, 1, 0],
     };
     const validated = block.validateProps({ stats });
+    expect(validated["variant"]).toBe("pill");
     expect(validated["stats"]).toEqual({
       approved: 12,
       averageRating: 4.8,
       publishedThisMonth: 2,
+      ratingDistribution: [8, 2, 1, 1, 0],
     });
     const html = block.render(validated);
     expect(html).toContain("2 reviews published this month");
     expect(html).toContain("4.8 average");
+  });
+
+  it("keeps the detailed variant and its bars through validateProps", () => {
+    const block = testimonialStripBlock();
+    const validated = block.validateProps({
+      variant: "detailed",
+      stats: {
+        approved: 5,
+        averageRating: 4.2,
+        publishedThisMonth: 1,
+        ratingDistribution: [2, 1, 1, 0, 1],
+      },
+    });
+    expect(validated["variant"]).toBe("detailed");
+    const html = block.render(validated);
+    expect(html).toContain("jbt-breakdown");
   });
 
   it("renders nothing when no approved reviews back the strip", () => {

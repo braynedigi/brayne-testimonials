@@ -13,10 +13,19 @@ import {
 import {
   buildRecord,
   buildStats,
+  IMPORT_MAX_ROWS,
+  importRow,
+  isLikelyBot,
+  makeInvitationId,
   makeRecordId,
+  selectByLocale,
   selectVisible,
+  toCsv,
+  validateInvitation,
   validateRecord,
   validateSubmission,
+  withTag,
+  type ImportRowResult,
   type RawRecord,
   type TestimonialRecord,
 } from "./records.js";
@@ -33,12 +42,19 @@ import { testimonialPatterns } from "./patterns.js";
 /** The `ctx.data` collection every testimonial row lives in. */
 const COLLECTION = "records";
 
+/** The `ctx.data` collection every sent invitation lives in. */
+const INVITATIONS = "invitations";
+
 /** Every moderation action the inbox offers. */
 const MODERATION_ACTIONS = [
   "approve",
   "unapprove",
   "feature",
   "unfeature",
+  "trash",
+  "restore",
+  "verify",
+  "unverify",
   "delete",
 ] as const;
 
@@ -80,13 +96,19 @@ async function readRecords(ctx: PluginContext): Promise<TestimonialRecord[]> {
 
 /**
  * The payload every admin route answers with: the settings view, every
- * record with its moderation state, the aggregate stats, and whether the
- * site has a CAPTCHA provider the form can use.
+ * record with its moderation state, the aggregate stats, the sent
+ * invitations, and whether the site has a CAPTCHA provider the form can use.
  */
 async function adminPayload(ctx: PluginContext) {
-  const [settings, records] = await Promise.all([
+  const [settings, records, invitationRows] = await Promise.all([
     readSettings(ctx),
     readRecords(ctx),
+    ctx.data.list<{
+      name?: unknown;
+      email?: unknown;
+      note?: unknown;
+      sentAt?: unknown;
+    }>(INVITATIONS),
   ]);
   let captcha: { provider: string | null } = { provider: null };
   try {
@@ -96,12 +118,22 @@ async function adminPayload(ctx: PluginContext) {
   } catch {
     /** An unavailable CAPTCHA api reads as "no provider": moderation holds. */
   }
+  const invitations = invitationRows
+    .map((row) => ({
+      id: row.id,
+      name: typeof row.data?.name === "string" ? row.data.name : "",
+      email: typeof row.data?.email === "string" ? row.data.email : "",
+      note: typeof row.data?.note === "string" ? row.data.note : "",
+      sentAt: typeof row.data?.sentAt === "string" ? row.data.sentAt : "",
+    }))
+    .sort((a, b) => Date.parse(b.sentAt || "0") - Date.parse(a.sentAt || "0"));
   return {
     body: {
       settings,
       records,
       stats: buildStats(records, new Date()),
       captcha,
+      invitations,
     },
     headers: { "Cache-Control": "no-store" },
   };
@@ -193,6 +225,20 @@ async function handleRecordSave(ctx: PluginContext, req: PluginHttpRequest) {
       typeof checked.values.avatarUrl === "string"
         ? checked.values.avatarUrl
         : current.avatarUrl,
+    photoUrl:
+      typeof checked.values.photoUrl === "string"
+        ? checked.values.photoUrl
+        : current.photoUrl,
+    videoUrl:
+      typeof checked.values.videoUrl === "string"
+        ? checked.values.videoUrl
+        : current.videoUrl,
+    tag:
+      typeof checked.values.tag === "string" ? checked.values.tag : current.tag,
+    locale:
+      typeof checked.values.locale === "string"
+        ? checked.values.locale
+        : current.locale,
     featuredAt:
       typeof checked.values.featuredAt === "string"
         ? checked.values.featuredAt
@@ -201,6 +247,18 @@ async function handleRecordSave(ctx: PluginContext, req: PluginHttpRequest) {
       typeof checked.values.status === "string"
         ? checked.values.status
         : current.status,
+    ownerReply:
+      typeof checked.values.ownerReply === "string"
+        ? checked.values.ownerReply
+        : current.ownerReply,
+    note:
+      typeof checked.values.note === "string"
+        ? checked.values.note
+        : current.note,
+    verified:
+      typeof checked.values.verified === "boolean"
+        ? checked.values.verified
+        : current.verified,
     consent: checked.values.consent === true ? true : current.consent,
     submittedAt: current.submittedAt || now.toISOString(),
     approvedAt:
@@ -215,7 +273,8 @@ async function handleRecordSave(ctx: PluginContext, req: PluginHttpRequest) {
 
   if (next.status === "approved" && !next.approvedAt)
     next.approvedAt = now.toISOString();
-  if (next.status === "pending") next.approvedAt = "";
+  if (next.status === "pending" || next.status === "trash")
+    next.approvedAt = "";
 
   await ctx.data.put(COLLECTION, id, next);
   const fresh = await adminPayload(ctx);
@@ -257,17 +316,162 @@ async function handleModerate(ctx: PluginContext, req: PluginHttpRequest) {
       record.status = "approved";
       record.approvedAt = record.approvedAt || now.toISOString();
     }
-    if (action === "unapprove") {
+    if (action === "unapprove" || action === "restore") {
+      /** Restore brings a trashed review back to the moderation queue. */
       record.status = "pending";
+      record.approvedAt = "";
+    }
+    if (action === "trash") {
+      /**
+       * Soft delete: the record stays in the data store for a change of
+       * heart, but "approved" it is not, so no public page renders it.
+       */
+      record.status = "trash";
       record.approvedAt = "";
     }
     if (action === "feature") record.featuredAt = now.toISOString();
     if (action === "unfeature") record.featuredAt = "";
+    /** Verification is the owner's own attestation; nothing more is claimed. */
+    if (action === "verify") record.verified = true;
+    if (action === "unverify") record.verified = false;
     await ctx.data.put(COLLECTION, id, record);
   }
 
   const fresh = await adminPayload(ctx);
   return { ...fresh, revalidate: true };
+}
+
+/**
+ * `GET /api/brayne-testimonials/export` — every stored record as CSV for the
+ * owner to download. Administrator-only, like the other admin routes. The
+ * note travels too: it is the owner's own data, and the export is the one
+ * place a moderator's private record-keeping belongs.
+ */
+async function handleExport(ctx: PluginContext, req: PluginHttpRequest) {
+  const denied = requireAdministrator(req);
+  if (denied) return denied;
+  const records = await readRecords(ctx);
+  return {
+    body: toCsv(records),
+    headers: {
+      "Content-Type": "text/csv; charset=utf-8",
+      "Content-Disposition": 'attachment; filename="brayne-testimonials.csv"',
+      "Cache-Control": "no-store",
+    },
+  };
+}
+
+/**
+ * `POST /api/brayne-testimonials/invite` — send one customer a personalized
+ * invitation to the review form. Administrator-only, CSRF-enforced by the
+ * host. On-demand only: the plugin has no scheduler and pretends to none.
+ */
+async function handleInvite(ctx: PluginContext, req: PluginHttpRequest) {
+  const denied = requireAdministrator(req);
+  if (denied) return denied;
+
+  const checked = validateInvitation(req.body);
+  if (!checked.ok) {
+    return {
+      status: 400,
+      body: { error: checked.message, field: checked.field },
+    };
+  }
+
+  const settings = await readSettings(ctx);
+  if (!settings.collectionUrl) {
+    return {
+      status: 400,
+      body: {
+        error:
+          "Set the reviews page address first, so the invitation has a link to carry.",
+        field: "collectionUrl",
+      },
+    };
+  }
+
+  /** The invitee's name rides the link, so the form arrives pre-filled. */
+  const link = `${settings.collectionUrl}${
+    checked.values.name
+      ? `?name=${encodeURIComponent(checked.values.name)}`
+      : ""
+  }`;
+  const text = [
+    checked.values.name ? `Hello ${checked.values.name},` : "Hello,",
+    "",
+    "We would love to hear how your experience went. It takes a minute:",
+    link,
+    "",
+    "Every review is read by a real person before it appears on the site.",
+    ...(checked.values.note ? ["", checked.values.note] : []),
+  ].join("\n");
+
+  try {
+    await ctx.mail.send({
+      to: checked.values.email,
+      subject: "How did we do?",
+      text,
+    });
+  } catch {
+    return {
+      status: 400,
+      body: { error: "The email could not be sent; nothing was recorded." },
+    };
+  }
+
+  const now = new Date();
+  await ctx.data.put(INVITATIONS, makeInvitationId(now), {
+    name: checked.values.name,
+    email: checked.values.email,
+    note: checked.values.note,
+    sentAt: now.toISOString(),
+  });
+
+  const fresh = await adminPayload(ctx);
+  return fresh;
+}
+
+/**
+ * `POST /api/brayne-testimonials/import` — import reviews from a CSV the
+ * admin pasted in. Administrator-only, CSRF-enforced. Every row travels
+ * through the same validation a public submission does and lands pending,
+ * whatever moderation state the file claims; each failed row is reported
+ * without stopping the rest.
+ */
+async function handleImport(ctx: PluginContext, req: PluginHttpRequest) {
+  const denied = requireAdministrator(req);
+  if (denied) return denied;
+
+  const body =
+    req.body && typeof req.body === "object" && !Array.isArray(req.body)
+      ? (req.body as Record<string, unknown>)
+      : {};
+  const rows = Array.isArray(body["rows"]) ? body["rows"] : [];
+  if (rows.length === 0 || rows.length > IMPORT_MAX_ROWS) {
+    return {
+      status: 400,
+      body: { error: `Send 1 to ${IMPORT_MAX_ROWS} rows at a time.` },
+    };
+  }
+
+  const now = new Date();
+  const failed: Array<{ row: number; field: string; message: string }> = [];
+  let imported = 0;
+  for (let index = 0; index < rows.length; index += 1) {
+    const result: ImportRowResult = importRow(rows[index], now);
+    if (!result.ok) {
+      failed.push({
+        row: index + 1,
+        field: result.field,
+        message: result.message,
+      });
+      continue;
+    }
+    await ctx.data.put(COLLECTION, String(result.record.id), result.record);
+    imported += 1;
+  }
+
+  return { body: { imported, failed } };
 }
 
 /**
@@ -318,6 +522,15 @@ async function handleSubmit(ctx: PluginContext, req: PluginHttpRequest) {
       body: { error: "Cross-origin request refused" },
       cors: true,
     };
+  }
+
+  /**
+   * The honeypot-and-timing gate, always on. A caught bot is answered with
+   * the exact success shape a real submission gets, so it learns nothing and
+   * nobody retries harder; nothing is stored.
+   */
+  if (isLikelyBot(req.body, Date.now())) {
+    return { status: 200, body: { ok: true }, cors: true };
   }
 
   const settings = await readSettings(ctx);
@@ -374,6 +587,8 @@ async function handleSubmit(ctx: PluginContext, req: PluginHttpRequest) {
     submittedAt: now.toISOString(),
     approvedAt: "",
     source: "form",
+    locale:
+      typeof checked.values.locale === "string" ? checked.values.locale : "",
   };
   await ctx.data.put(COLLECTION, String(record.id), record);
 
@@ -403,7 +618,7 @@ async function handleSubmit(ctx: PluginContext, req: PluginHttpRequest) {
  * untouched — a data problem renders an empty block, never a broken page.
  */
 function hydrateBlocks(ctx: PluginContext) {
-  return async (blocks: unknown): Promise<unknown> => {
+  return async (blocks: unknown, context?: unknown): Promise<unknown> => {
     try {
       /** Mutate the tree's own nodes, not copies of them. */
       const found: BlockNode[] = [];
@@ -414,6 +629,14 @@ function hydrateBlocks(ctx: PluginContext) {
         foundTypes: found.map((n) => String(n.type)),
       });
       if (found.length === 0) return blocks;
+
+      /** The page's locale when the host renders a translated page; absent on unlocalized sites. */
+      const pageLocale =
+        context && typeof context === "object" && !Array.isArray(context)
+          ? typeof (context as Record<string, unknown>)["locale"] === "string"
+            ? ((context as Record<string, unknown>)["locale"] as string)
+            : ""
+          : "";
 
       const [settings, rows] = await Promise.all([
         readSettings(ctx),
@@ -426,6 +649,7 @@ function hydrateBlocks(ctx: PluginContext) {
         recordCount: records.length,
         approvedCount: records.filter((r) => r.status === "approved").length,
         minRating: settings.minRatingToDisplay,
+        pageLocale: pageLocale || null,
       });
 
       for (const node of found) {
@@ -433,11 +657,15 @@ function hydrateBlocks(ctx: PluginContext) {
         if (node.type === TESTIMONIALS_BLOCK) {
           const limit = typeof props["limit"] === "number" ? props["limit"] : 6;
           const source = props["source"] === "featured" ? "featured" : "all";
-          props["records"] = selectVisible(records, {
-            source,
-            minRating: settings.minRatingToDisplay,
-            limit,
-          }).map(toDisplayRecord);
+          const tag = typeof props["tag"] === "string" ? props["tag"] : "";
+          props["records"] = withTag(
+            selectVisible(selectByLocale(records, pageLocale), {
+              source,
+              minRating: settings.minRatingToDisplay,
+              limit,
+            }),
+            tag,
+          ).map(toDisplayRecord);
         }
         if (node.type === STRIP_BLOCK) {
           props["stats"] = buildStats(records, new Date());
@@ -489,6 +717,10 @@ function toDisplayRecord(record: TestimonialRecord) {
     role: record.role,
     rating: record.rating,
     avatarUrl: record.avatarUrl,
+    photoUrl: record.photoUrl,
+    videoUrl: record.videoUrl,
+    ownerReply: record.ownerReply,
+    verified: record.verified,
     approvedAt: record.approvedAt,
   };
 }
@@ -498,7 +730,7 @@ const brayneTestimonials: PluginModule = {
     id: PLUGIN_ID,
     apiNamespace: API_NAMESPACE,
     name: "Brayne Testimonials",
-    version: "0.1.0",
+    version: "0.6.0",
     description:
       "Collect customer reviews through a moderated form and display them as testimonial blocks: grid, slider, or feature quote, with optional star ratings, avatars, and an honest activity strip.",
     author: "Brayne Smart solutions Corp",
@@ -593,6 +825,9 @@ const brayneTestimonials: PluginModule = {
     ctx.http.put("admin-settings", (req) => handleAdminSettings(ctx, req));
     ctx.http.put("record", (req) => handleRecordSave(ctx, req));
     ctx.http.post("moderate", (req) => handleModerate(ctx, req));
+    ctx.http.get("export", (req) => handleExport(ctx, req));
+    ctx.http.post("invite", (req) => handleInvite(ctx, req));
+    ctx.http.post("import", (req) => handleImport(ctx, req));
     ctx.http.get("form-config", () => handleFormConfig(ctx));
     ctx.http.post("submit", (req) => handleSubmit(ctx, req), {
       csrf: false,
@@ -626,11 +861,15 @@ const brayneTestimonials: PluginModule = {
   },
 
   async deleteData(ctx: PluginContext) {
-    const rows = await ctx.data.list<RawRecord>(COLLECTION);
-    for (const row of rows) {
-      await ctx.data.delete(COLLECTION, row.id);
+    for (const collection of [COLLECTION, INVITATIONS]) {
+      const rows = await ctx.data.list<RawRecord>(collection);
+      for (const row of rows) {
+        await ctx.data.delete(collection, row.id);
+      }
     }
-    ctx.logger.info("Brayne Testimonials deleteData (records cleared)");
+    ctx.logger.info(
+      "Brayne Testimonials deleteData (records and invitations cleared)",
+    );
   },
 };
 
